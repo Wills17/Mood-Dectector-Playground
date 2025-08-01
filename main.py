@@ -1,6 +1,6 @@
 # Facial and mood dectection using OpenCV and mediapipe
 
-#import necessary libraries
+#Import necessary libraries
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -21,6 +21,9 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 lips_connections = mp_face_mesh.FACEMESH_LIPS
 
+# LEFT_IRIS = [468, 469, 470, 471]
+# RIGHT_IRIS = [473, 474, 475, 476]
+
 #connections for left and right eyes
 left_eye_connections = mp_face_mesh.FACEMESH_LEFT_EYE
 right_eye_connections = mp_face_mesh.FACEMESH_RIGHT_EYE
@@ -34,18 +37,16 @@ emotion_labels =    \
 
 def distance(point1, point2):
     """Calculate the Euclidean distance between two points."""
-    return np.linalg.norm(np.array(point1.x, point1.y) - np.array(point2.x,point2.y))
+    return np.linalg.norm(np.array([point1.x, point1.y]) - np.array([point2.x,point2.y]))
 
 def calculate_mood(landmarks):
     """Calculate mood based on facial landmarks."""
-    if not landmarks:
-        return "Neutral"
 
     # Calculate distances between key points
-    top_lip = landmarks[0] 
-    bottom_lip = landmarks[17]   
-    left_eye_extreme = landmarks[230]  # left eye extreme point
-    right_eye_extreme = landmarks[450]  # right eye extreme point
+    top_lip = landmarks[13] 
+    bottom_lip = landmarks[15]   
+    left_face_extreme = landmarks[230]  
+    right_face_extreme = landmarks[450]
     left_eye_top = landmarks[159]
     left_eye_bottom = landmarks[145]
     right_eye_top = landmarks[386]
@@ -62,18 +63,18 @@ def calculate_mood(landmarks):
     
     
     # Calculate distances
-    face_distance = distance(left_eye_extreme, right_eye_extreme)
-    print("Face distance:", face_distance)
+    face_distance = distance(left_face_extreme, right_face_extreme)
+    print("\nFace distance:", face_distance)
     open_mouth = distance(mouth_left, mouth_right) / face_distance
-    print("Open mouth:", open_mouth)
+    print("\nOpen mouth:", open_mouth)
     stretched_mouth = distance(top_lip, bottom_lip) / face_distance
-    print("Stretched mouth:", stretched_mouth)
+    print("\nStretched mouth:", stretched_mouth)
     open_eyes = distance(left_eye_top, left_eye_bottom) + distance(right_eye_top, right_eye_bottom) / (2 * face_distance)
-    print("Open eyes:", open_eyes)
+    print("\nOpen eyes:", open_eyes)
     center_eye = (left_eye_top.y + right_eye_top.y + right_eye_top.y + right_eye_bottom.y) / 4
-    print("Center eye:", center_eye)
+    print("\nCenter eye:", center_eye)
     sad_mouth = distance(top_lip, bottom_lip) / face_distance
-    print("Sad mouth:", sad_mouth)
+    print("\nSad mouth:", sad_mouth)
     
     
     # Determine mood based on distances
@@ -113,9 +114,62 @@ while True:
     if cv2.waitKey(1) == ord('q'):
         break
     
+    # Convert the frame to RGB
+    frame = cv2.flip(frame, 1)  # Flip the frame horizontally
+    a, b, c = frame.shape
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    results = face_mesh.process(frame_rgb)
+    canvas = np.zeros_like(frame)
     
+    # Check if any face landmarks were detected
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
+            list_landmarks = face_landmarks.landmark
+            emotion_labels = calculate_mood(list_landmarks)
+            
+            """add color and emoji later"""
+            
+            
+            # Draw face mesh
+            mp_drawing.draw_landmarks(
+                image=canvas,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_TESSELATION,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
+            
+            # Draw lips
+            mp_drawing.draw_landmarks(
+                image=canvas,
+                landmark_list=face_landmarks,
+                connections=lips_connections,
+                landmark_drawing_spec=None,)
     
-    
+            
+            # Draw left eye
+            mp_drawing.draw_landmarks(
+                image=canvas,
+                landmark_list=face_landmarks,
+                
+                connections=left_eye_connections,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles)
+            
+            # Draw right eye
+            mp_drawing.draw_landmarks(
+                image=canvas,
+                landmark_list=face_landmarks,
+                connections=right_eye_connections,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing_styles)
+            
+            # Calculate mood
+            landmarks = face_landmarks.landmark
+            mood = calculate_mood(landmarks)
+            
+            # Display mood on the frame
+            cv2.putText(canvas, f'Mood: {mood}', (10, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     
     
 cap.release()
