@@ -6,7 +6,6 @@ import mediapipe as mp
 import numpy as np
 
 
-
 # set up mediapipe face mesh
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
@@ -136,14 +135,17 @@ while True:
                 landmark_list=face_landmarks,
                 connections=mp_face_mesh.FACEMESH_TESSELATION,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing.DrawingSpec(color=color, thickness=1, circle_radius=1))
+                connection_drawing_spec=mp_drawing.DrawingSpec(color=color, thickness=1, circle_radius=1)
+                )            
             
             # Draw lips
             mp_drawing.draw_landmarks(
                 image=canvas,
                 landmark_list=face_landmarks,
                 connections=lips_connections,
-                landmark_drawing_spec=None,)
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,128,128), thickness=1, circle_radius=1)
+                )
     
             # Draw left eye
             mp_drawing.draw_landmarks(
@@ -166,9 +168,9 @@ while True:
             cv2.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             
-            # Show windows
-            cv2.imshow("Webcam Feed", cv2.resize(frame, (640, 480)))
-            cv2.imshow("Emotion Mesh", cv2.resize(canvas, (640, 480)))
+        # Show windows
+        cv2.imshow("Webcam Feed", cv2.resize(frame, (640, 480)))
+        cv2.imshow("Emotion Mesh", cv2.resize(canvas, (640, 480)))
 
 
         if cv2.waitKey(1) == ord('q'):
