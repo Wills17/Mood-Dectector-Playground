@@ -21,12 +21,8 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 lips_connections = mp_face_mesh.FACEMESH_LIPS
 
-# LEFT_IRIS = [468, 469, 470, 471]
-# RIGHT_IRIS = [473, 474, 475, 476]
-
-#connections for left and right eyes
-left_eye_connections = mp_face_mesh.FACEMESH_LEFT_EYE
-right_eye_connections = mp_face_mesh.FACEMESH_RIGHT_EYE
+LEFT_IRIS = [468, 469, 470, 471]
+RIGHT_IRIS = [473, 474, 475, 476]
 
 
 # Labels for emotions
@@ -53,6 +49,7 @@ def calculate_mood(landmarks):
     right_eye_bottom = landmarks[374]
     mouth_left = landmarks[61]
     mouth_right = landmarks[291]
+    
 
 
     #check if landmarks are valid
@@ -73,25 +70,26 @@ def calculate_mood(landmarks):
     print("\nOpen eyes:", open_eyes)
     center_eye = (left_eye_top.y + right_eye_top.y + right_eye_top.y + right_eye_bottom.y) / 4
     print("\nCenter eye:", center_eye)
-    sad_mouth = distance(top_lip, bottom_lip) / face_distance
-    print("\nSad mouth:", sad_mouth)
+    sad_mood = distance(top_lip, bottom_lip) / face_distance
+    print("\nSad mouth:", sad_mood)
     
     
     # Determine mood based on distances
-    if open_mouth > 0.1 and stretched_mouth > 0.4:
+    if stretched_mouth > 0.40 and open_mouth < 0.06:
         return "Happy"
-    elif open_mouth > 0.06 and open_mouth < 0.12:
-        return "Fearful"
-    elif open_eyes < 0.05 and sad_mouth < 0.1:
+    elif sad_mood > 0.01 and open_eyes < 0.04:
         return "Sad"
-    elif open_mouth > 0.12:
-        return "Suprised"
-    elif open_mouth < 0.03 and open_eyes > 0.08 and stretched_mouth < 0.4:
-        return "Disgusted"
-    elif open_mouth > 0.09 and open_mouth < 0.05:
+    elif open_eyes > 0.096 and open_mouth < 0.06:
         return "Angry"
+    elif open_mouth >= 0.12:
+        return "Surprised"
+    elif 0.06 < open_mouth < 0.12:
+        return "Fearful"
+    elif open_mouth < 0.03 and open_eyes < 0.08 and stretched_mouth < 0.38:
+        return "Disgusted"
     else:
         return "Neutral"
+    
     
 
 # set up video capture
@@ -108,14 +106,9 @@ while True:
     if not ret:
         print("❌ Can't receive frame (Stream end!). Exiting...")
         break
-
-    cv2.imshow('Camera Feed', frame)
-
-    if cv2.waitKey(1) == ord('q'):
-        break
     
-    # Convert the frame to RGB
-    frame = cv2.flip(frame, 1)  # Flip the frame horizontally
+    # Flip the frame horizontally and convert the frame to RGB
+    frame = cv2.flip(frame, 1)  # 
     a, b, c = frame.shape
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(frame_rgb)
@@ -125,8 +118,6 @@ while True:
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             list_landmarks = face_landmarks.landmark
-            emotion_labels = calculate_mood(list_landmarks)
-            
             """add color and emoji later"""
             
             
@@ -145,32 +136,37 @@ while True:
                 connections=lips_connections,
                 landmark_drawing_spec=None,)
     
-            
             # Draw left eye
             mp_drawing.draw_landmarks(
                 image=canvas,
                 landmark_list=face_landmarks,
-                
-                connections=left_eye_connections,
+                connections=mp_face_mesh.FACEMESH_LEFT_IRIS,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles)
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
             
             # Draw right eye
             mp_drawing.draw_landmarks(
                 image=canvas,
                 landmark_list=face_landmarks,
-                connections=right_eye_connections,
+                connections=mp_face_mesh.FACEMESH_RIGHT_IRIS,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles)
+                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
             
             # Calculate mood
-            landmarks = face_landmarks.landmark
-            mood = calculate_mood(landmarks)
+            emotion_labels = calculate_mood(list_landmarks)
+            
             
             # Display mood on the frame
-            cv2.putText(canvas, f'Mood: {mood}', (10, 30), 
+            cv2.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-    
+            
+            # Show windows
+            cv2.imshow("Webcam Feed", cv2.resize(frame, (640, 480)))
+            cv2.imshow("Emotion Mesh", cv2.resize(canvas, (640, 480)))
+
+
+        if cv2.waitKey(1) == ord('q'):
+            break
     
 cap.release()
 cv2.destroyAllWindows()
