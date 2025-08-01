@@ -72,12 +72,30 @@ def calculate_mood(landmarks):
     print("Open eyes:", open_eyes)
     center_eye = (left_eye_top.y + right_eye_top.y + right_eye_top.y + right_eye_bottom.y) / 4
     print("Center eye:", center_eye)
+    sad_mouth = distance(top_lip, bottom_lip) / face_distance
+    print("Sad mouth:", sad_mouth)
     
-  
+    
+    # Determine mood based on distances
+    if open_mouth > 0.1 and stretched_mouth > 0.4:
+        return "Happy"
+    elif open_mouth > 0.06 and open_mouth < 0.12:
+        return "Fearful"
+    elif open_eyes < 0.05 and sad_mouth < 0.1:
+        return "Sad"
+    elif open_mouth > 0.12:
+        return "Suprised"
+    elif open_mouth < 0.03 and open_eyes > 0.08 and stretched_mouth < 0.4:
+        return "Disgusted"
+    elif open_mouth > 0.09 and open_mouth < 0.05:
+        return "Angry"
+    else:
+        return "Neutral"
+    
 
-
-# set up video capturing
+# set up video capture
 cap = cv2.VideoCapture(0)
+
 if not cap.isOpened():
     print("Error: Could not open video.")
     print("Please check your camera connection.")
@@ -87,13 +105,18 @@ if not cap.isOpened():
 while True:
     ret, frame = cap.read()
     if not ret:
-        print("❌ Can't receive frame (stream end?). Exiting...")
+        print("❌ Can't receive frame (Stream end!). Exiting...")
         break
 
     cv2.imshow('Camera Feed', frame)
 
     if cv2.waitKey(1) == ord('q'):
         break
-
+    
+    
+    
+    
+    
+    
 cap.release()
 cv2.destroyAllWindows()
