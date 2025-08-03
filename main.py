@@ -1,7 +1,7 @@
 # Facial and mood dectection using OpenCV and mediapipe
 
 #Import necessary libraries
-import cv2
+import cv2 as cv
 import mediapipe as mp
 import numpy as np
 
@@ -54,12 +54,6 @@ def calculate_mood(landmarks):
     mouth_left = landmarks[61]
     mouth_right = landmarks[291]
     iris_left = landmarks[468]
-
-    #check if landmarks are valid
-    if not (left_eye_bottom and right_eye_bottom and 
-            top_lip and bottom_lip and left_eye_top and 
-            right_eye_top and mouth_left and mouth_right):
-        return "Neutral"
     
     
     # Calculate distances
@@ -70,9 +64,9 @@ def calculate_mood(landmarks):
     print("\nOpen mouth:", open_mouth)
     stretched_mouth = distance(top_lip, bottom_lip) / face_distance
     print("\nStretched mouth:", stretched_mouth)
-    open_eyes = distance(left_eye_top, left_eye_bottom) + distance(right_eye_top, right_eye_bottom) / (2 * face_distance)
+    open_eyes = (distance(left_eye_top, left_eye_bottom) + distance(right_eye_top, right_eye_bottom)) / (2 * face_distance)
     print("\nOpen eyes:", open_eyes)
-    center_eye = (left_eye_top.y + right_eye_top.y + right_eye_top.y + right_eye_bottom.y) / 4
+    center_eye = (left_eye_top.y + left_eye_top.y + right_eye_top.y + right_eye_bottom.y) / 4
     print("\nCenter eye:", center_eye)
     sad_mood = iris_left.y - center_eye
     print("\nSad mouth:", sad_mood)
@@ -85,7 +79,7 @@ def calculate_mood(landmarks):
         return "Sad"
     elif open_eyes > 0.096 and open_mouth < 0.06:
         return "Angry"
-    elif open_mouth >= 1:
+    elif open_mouth > 0.25:
         return "Surprised"
     elif 0.06 < open_mouth < 0.12:
         return "Fearful"
@@ -93,6 +87,7 @@ def calculate_mood(landmarks):
         return "Disgusted"
     else:
         return "Neutral"
+
     
     
 
@@ -144,7 +139,7 @@ while True:
                 landmark_list=face_landmarks,
                 connections=lips_connections,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,128,128), thickness=1, circle_radius=1)
+                connection_drawing_spec=mp_drawing.DrawingSpec(color=(128,128,128), thickness=1, circle_radius=1)
                 )
     
             # Draw left eye
@@ -169,9 +164,8 @@ while True:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             
         # Show windows
-        cv2.imshow("Webcam Feed", cv2.resize(frame, (640, 480)))
-        cv2.imshow("Emotion Mesh", cv2.resize(canvas, (640, 480)))
-
+        cv2.imshow("Webcam Feed", cv2.resize(frame, 512, 384))
+        cv2.imshow("Emotion Mesh", cv2.resize(canvas, (512, 384)))
 
         if cv2.waitKey(1) == ord('q'):
             break
