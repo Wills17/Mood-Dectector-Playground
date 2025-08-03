@@ -92,7 +92,7 @@ def calculate_mood(landmarks):
     
 
 # set up video capture
-cap = cv2.VideoCapture(0)
+cap = cv.VideoCapture(0)
 
 if not cap.isOpened():
     print("Error: Could not open video.")
@@ -107,9 +107,9 @@ while True:
         break
     
     # Flip the frame horizontally and convert the frame to RGB
-    frame = cv2.flip(frame, 1) 
+    frame = cv.flip(frame, 1) 
     a, b, c = frame.shape
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
     results = face_mesh.process(frame_rgb)
     canvas = np.zeros_like(frame)
     
@@ -142,33 +142,28 @@ while True:
                 connection_drawing_spec=mp_drawing.DrawingSpec(color=(128,128,128), thickness=1, circle_radius=1)
                 )
     
-            # Draw left eye
-            mp_drawing.draw_landmarks(
-                image=canvas,
-                landmark_list=face_landmarks,
-                connections=mp_face_mesh.FACEMESH_LEFT_IRIS,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
+            # Draw irises
+            for idx in LEFT_IRIS + RIGHT_IRIS:
+                pt = list_landmarks[idx]
+                cx, cy = int(pt.x * b), int(pt.y * a)
+                cv.circle(canvas, (cx, cy), 2, (0, 255, 255), -1)
             
-            # Draw right eye
-            mp_drawing.draw_landmarks(
-                image=canvas,
-                landmark_list=face_landmarks,
-                connections=mp_face_mesh.FACEMESH_RIGHT_IRIS,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
             
-
             # Display mood on the frame
-            cv2.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            cv.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
+                        cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             
-        # Show windows
-        cv2.imshow("Webcam Feed", cv2.resize(frame, 512, 384))
-        cv2.imshow("Emotion Mesh", cv2.resize(canvas, (512, 384)))
+            
+        # Resize both frames.
+        frame_ = cv.resize(frame, (512, 384))
+        canvas_= cv.resize(canvas, (512, 384))
 
-        if cv2.waitKey(1) == ord('q'):
+        # Show windows
+        cv.imshow("Webcam Feed", frame_)
+        cv.imshow("Emotion Mesh", canvas_)
+
+        if cv.waitKey(1) == ord('q'):
             break
     
 cap.release()
-cv2.destroyAllWindows()
+cv.destroyAllWindows()
