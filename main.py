@@ -59,10 +59,10 @@ def calculate_mood(landmarks):
     # Calculate distances
     print("\n\n\nCalculating distances...")
     face_distance = distance(left_face_extreme, right_face_extreme)
-    print("\n\n\nFace distance:", face_distance)
-    open_mouth = distance(mouth_left, mouth_right) / face_distance
+    print("\nFace distance:", face_distance)
+    open_mouth = distance(top_lip, bottom_lip) / face_distance
     print("\nOpen mouth:", open_mouth)
-    stretched_mouth = distance(top_lip, bottom_lip) / face_distance
+    stretched_mouth = distance(mouth_left, mouth_right) / face_distance
     print("\nStretched mouth:", stretched_mouth)
     open_eyes = (distance(left_eye_top, left_eye_bottom) + distance(right_eye_top, right_eye_bottom)) / (2 * face_distance)
     print("\nOpen eyes:", open_eyes)
