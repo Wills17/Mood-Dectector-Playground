@@ -89,7 +89,6 @@ def calculate_mood(landmarks):
         return "Neutral"
 
     
-    
 
 # set up video capture
 cap = cv.VideoCapture(0)
@@ -157,9 +156,12 @@ while True:
         # Resize both frames.
         frame_ = cv.resize(frame, (512, 384))
         canvas_= cv.resize(canvas, (512, 384))
-
+        
+        # Stack frames horizontally
+        canvas_ = cv.hconcat([frame_, canvas_])
+        
         # Show windows
-        cv.imshow("Webcam Feed", frame_)
+        # cv.imshow("Webcam Feed", frame_)
         cv.imshow("Emotion Mesh", canvas_)
 
         if cv.waitKey(1) == ord('q'):
