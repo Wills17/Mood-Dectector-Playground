@@ -5,13 +5,16 @@ import cv2 as cv
 import pyttsx3 as tts
 import mediapipe as mp
 import numpy as np
+import time
+import threading
+
 
 
 # set up mediapipe face mesh
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(
     static_image_mode=False,
-    max_num_faces=5, # detect up to 5 faces
+    max_num_faces=1,                    # detect up to 5 faces # detect one for now
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5,
     refine_landmarks=True)
@@ -24,18 +27,12 @@ LEFT_IRIS = [468, 469, 470, 471]
 RIGHT_IRIS = [473, 474, 475, 476]
 
 
+
 # Set up text-to-speech engine
 engine = tts.init()
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1)
 
-
-
-# Function to speak the detected mood
-def speak_mood(mood):
-    """Speak the detected mood using text-to-speech."""
-    engine.say(f"Your mood is {mood}")
-    engine.runAndWait()
 
 
 # Labels for emotions
@@ -49,7 +46,20 @@ mood_styles = {
     "Disgusted":  {"emoji": "🤢", "color": (85, 107, 47)}      # dark olive green
 }
 
-last_mood = ""
+#initialize no mood and time 
+last_mood = None
+last_speak_mood_time = time.time()
+
+
+# Function to speak the detected mood
+def speak_mood(mood):
+    """Speak the detected mood using text-to-speech."""
+    global last_speak_mood_time
+    # Avoid speaking too frequently
+    if time.time() - last_speak_mood_time > 3:
+        threading.Thread(target=lambda: engine.say(f"Your mood is {mood}") or engine.runAndWait()).start()
+        last_speak_mood_time = time.time()
+
 
 def distance(point1, point2):
     """Calculate the Euclidean distance between two points."""
@@ -166,9 +176,9 @@ while True:
             
             # Speak the mood if it has changed
             if emotion_labels != last_mood:
-                last_mood = emotion_labels
                 print(f"Detected mood: {emotion_labels}")
                 speak_mood(emotion_labels)
+                last_mood = emotion_labels
             
             
             # Display mood on the frame
