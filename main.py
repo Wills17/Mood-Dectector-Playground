@@ -2,6 +2,7 @@
 
 #Import necessary libraries
 import cv2 as cv
+import pyttsx3 as tts
 import mediapipe as mp
 import numpy as np
 
@@ -22,6 +23,11 @@ lips_connections = mp_face_mesh.FACEMESH_LIPS
 LEFT_IRIS = [468, 469, 470, 471]
 RIGHT_IRIS = [473, 474, 475, 476]
 
+
+# Set up text-to-speech engine
+engine = tts.init()
+engine.setProperty('rate', 150)  # Set speech rate
+engine.setProperty('volume', 1)  # Set volume (0.0 to 1.0)
 
 # Labels for emotions
 mood_styles = {
@@ -156,13 +162,14 @@ while True:
         # Resize both frames.
         frame_ = cv.resize(frame, (512, 384))
         canvas_= cv.resize(canvas, (512, 384))
-        
-        # Stack frames horizontally
-        canvas_ = cv.hconcat([frame_, canvas_])
-        
+
+        # Stack frames together
+        frame_canvas = cv.hconcat([frame_, canvas_])
+
         # Show windows
         # cv.imshow("Webcam Feed", frame_)
-        cv.imshow("Emotion Mesh", canvas_)
+        # cv.imshow("Emotion Mesh", canvas_)
+        cv.imshow("Combined Feed", frame_canvas)
 
         if cv.waitKey(1) == ord('q'):
             break
