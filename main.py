@@ -26,8 +26,17 @@ RIGHT_IRIS = [473, 474, 475, 476]
 
 # Set up text-to-speech engine
 engine = tts.init()
-engine.setProperty('rate', 150)  # Set speech rate
-engine.setProperty('volume', 1)  # Set volume (0.0 to 1.0)
+engine.setProperty('rate', 150)
+engine.setProperty('volume', 1)
+
+
+
+# Function to speak the detected mood
+def speak_mood(mood):
+    """Speak the detected mood using text-to-speech."""
+    engine.say(f"Your mood is {mood}")
+    engine.runAndWait()
+
 
 # Labels for emotions
 mood_styles = {
@@ -40,6 +49,7 @@ mood_styles = {
     "Disgusted":  {"emoji": "🤢", "color": (85, 107, 47)}      # dark olive green
 }
 
+last_mood = ""
 
 def distance(point1, point2):
     """Calculate the Euclidean distance between two points."""
@@ -154,6 +164,13 @@ while True:
                 cv.circle(canvas, (cx, cy), 2, (0, 255, 255), -1)
             
             
+            # Speak the mood if it has changed
+            if emotion_labels != last_mood:
+                last_mood = emotion_labels
+                print(f"Detected mood: {emotion_labels}")
+                speak_mood(emotion_labels)
+            
+            
             # Display mood on the frame
             cv.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
                         cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
@@ -165,6 +182,9 @@ while True:
 
         # Stack frames together
         frame_canvas = cv.hconcat([frame_, canvas_])
+        
+        # increase frame size
+        frame_canvas = cv.resize(frame_canvas, (1240, 840))
 
         # Show windows
         # cv.imshow("Webcam Feed", frame_)
