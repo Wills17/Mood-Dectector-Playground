@@ -51,6 +51,8 @@ last_mood = None
 last_speak_mood_time = time.time()
 
 
+#Set queue alonside threading
+
 # Function to speak the detected mood
 def speak_mood(mood):
     """Speak the detected mood using text-to-speech."""
@@ -58,6 +60,7 @@ def speak_mood(mood):
     global last_speak_mood_time
     # Avoid speaking too frequently
     if time.time() - last_speak_mood_time > 3:
+        # print(time.time())
         threading.Thread(target=lambda: engine.say(f"Your mood is {mood}") or engine.runAndWait()).start()
         last_speak_mood_time = time.time()
 
@@ -192,7 +195,7 @@ while True:
                 
                 
             # Display mood over the nose
-            # cx, cy = int(list_landmarks[1].x * frame.shape[1]), int(list_landmarks[1].y * frame.shape[0])
+            # cx, cy = int(list_landmarks[1].x * a), int(list_landmarks[1].y * b)
             # cv.putText(canvas, f"{emotion_labels} {emoji}", (cx - 40, cy - 20),
             #         cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
             
