@@ -106,7 +106,7 @@ def calculate_mood(landmarks):
         return "Sad"
     elif open_eyes > 0.096 and open_mouth < 0.06:
         return "Angry"
-    elif open_mouth > 0.25:
+    elif open_mouth > 0.21:
         return "Surprised"
     elif 0.06 < open_mouth < 0.12:
         return "Fearful"
