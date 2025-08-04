@@ -54,6 +54,7 @@ last_speak_mood_time = time.time()
 # Function to speak the detected mood
 def speak_mood(mood):
     """Speak the detected mood using text-to-speech."""
+    
     global last_speak_mood_time
     # Avoid speaking too frequently
     if time.time() - last_speak_mood_time > 3:
@@ -115,6 +116,8 @@ def calculate_mood(landmarks):
         return "Neutral"
 
     
+#initialize frame count
+frame_count = 0
 
 # set up video capture
 cap = cv.VideoCapture(0)
@@ -133,7 +136,9 @@ while True:
     
     # Flip the frame horizontally and convert the frame to RGB
     frame = cv.flip(frame, 1) 
+    
     a, b, c = frame.shape
+    
     frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
     results = face_mesh.process(frame_rgb)
     canvas = np.zeros_like(frame)
@@ -143,8 +148,20 @@ while True:
         for face_landmarks in results.multi_face_landmarks:
             list_landmarks = face_landmarks.landmark            
             
-            # Calculate mood
-            emotion_labels = calculate_mood(list_landmarks)
+            
+            # Speak the mood if it has changed after 10 frames
+            if frame_count % 10 == 0:
+                emotion_labels = calculate_mood(list_landmarks) # Calculate mood
+                
+                if emotion_labels != last_mood:
+                    print(f"Detected mood: {emotion_labels}")
+                    speak_mood(emotion_labels)
+                    last_mood = emotion_labels
+                    
+            else:
+                last_mood = emotion_labels
+            
+            
             color = mood_styles[emotion_labels]["color"]
             emoji = mood_styles[emotion_labels]["emoji"]
             
@@ -158,43 +175,45 @@ while True:
                 connection_drawing_spec=mp_drawing.DrawingSpec(color=color, thickness=1, circle_radius=1)
                 )            
             
-            # Draw lips
-            mp_drawing.draw_landmarks(
-                image=canvas,
-                landmark_list=face_landmarks,
-                connections=lips_connections,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing.DrawingSpec(color=(128,128,128), thickness=1, circle_radius=1)
-                )
+            # # Draw lips
+            # mp_drawing.draw_landmarks(
+            #     image=canvas,
+            #     landmark_list=face_landmarks,
+            #     connections=lips_connections,
+            #     landmark_drawing_spec=None,
+            #     connection_drawing_spec=mp_drawing.DrawingSpec(color=(128,128,128), thickness=1, circle_radius=1)
+                # )
     
             # Draw irises
             for idx in LEFT_IRIS + RIGHT_IRIS:
                 pt = list_landmarks[idx]
                 cx, cy = int(pt.x * b), int(pt.y * a)
                 cv.circle(canvas, (cx, cy), 2, (0, 255, 255), -1)
-            
-            
-            # Speak the mood if it has changed
-            if emotion_labels != last_mood:
-                print(f"Detected mood: {emotion_labels}")
-                speak_mood(emotion_labels)
-                last_mood = emotion_labels
+                
+                
+            # Display mood over the nose
+            # cx, cy = int(list_landmarks[1].x * frame.shape[1]), int(list_landmarks[1].y * frame.shape[0])
+            # cv.putText(canvas, f"{emotion_labels} {emoji}", (cx - 40, cy - 20),
+            #         cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
             
             
             # Display mood on the frame
             cv.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
-                        cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             
+            
+        frame_count += 1
+        
             
         # Resize both frames.
-        frame_ = cv.resize(frame, (512, 384))
-        canvas_= cv.resize(canvas, (512, 384))
+        frame_ = cv.resize(frame, (640, 480))
+        canvas_= cv.resize(canvas, (640, 480))
 
         # Stack frames together
         frame_canvas = cv.hconcat([frame_, canvas_])
         
         # increase frame size
-        frame_canvas = cv.resize(frame_canvas, (1240, 840))
+        frame_canvas = cv.resize(frame_canvas, (1280, 720))
 
         # Show windows
         # cv.imshow("Webcam Feed", frame_)
