@@ -2,7 +2,7 @@
 import os
 import cv2 as cv
 import numpy as np
-# from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import time
@@ -23,27 +23,55 @@ folders = ['surprise', 'disgust', 'happy', 'sad', 'fear', 'neutral', 'angry']
 # Train folder
 for folder in folders:
     train_path = data_train + folder
-    print("\nCurrent folder:", folder)
+    print("\nCurrent folder:", train_path)
     for current_img in tqdm(os.listdir(train_path)):
         
         # Read and convert image to Grayscale
         img = cv.imread(train_path + "/" + current_img, cv.IMREAD_GRAYSCALE)
         
         # Display image
-        cv.imshow(f"Original Image {current_img}", img)
-        cv.waitKey(1000)
+        # cv.imshow(f"Original Image {current_img}", img)
+        # cv.waitKey(1000)
         
         # resize images
-        img = cv.resize(img, (250, 250))
+        img = cv.resize(img, (150, 150))
         
         # Show resized imaage
-        cv.imshow(f"Resized Image {current_img}", img)
-        cv.waitKey(1000)
-        cv.destroyAllWindows()
+        # cv.imshow(f"Resized Image {current_img}", img)
+        # cv.waitKey(1000)
+        # cv.destroyAllWindows()
         
         X_train.append(img)
         y_train.append(folder)
         
     print("Appended all images in {} folder successfully.".format(folder))
     
-print(f"\nAppended all images in the Training folder successfully.")
+print(f"\nFinished processing all images in the folders successfully.")
+
+
+
+# Confirm length and splt into test and train
+X_train,X_test,y_train,y_test = train_test_split(X_train,y_train, test_size=0.2, random_state=32)
+print("\nShape of X_train:", X_train.shape)
+print("Shape of y_train:", y_train.shape)
+print("Shape of X_test:", X_test.shape)
+print("Shape of y_test:", y_test.shape)
+
+
+# Reshape and normalize
+X_train = X_train.reshape(-1, 150, 150, 1) / 255.0
+X_test = X_test.reshape(-1, 150, 150, 1) / 255.0
+
+# Encode labels
+encoder = LabelEncoder()
+y_train = encoder.fit_transform(y_train)
+y_test = encoder.transform(y_test)
+
+# One-hot encode for y_train
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+print("\ny_train:", y_train)
+print("\ny_test:", y_test)
+
+print("\nClasses:", encoder.classes_)
+
