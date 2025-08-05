@@ -63,6 +63,7 @@ def speak_mood_loop():
             mood_message = queue_speech.get()
             engine.say(mood_message)
             engine.runAndWait()
+        time.sleep(1)
         
 
 # Function to add the detected mood message
@@ -165,8 +166,8 @@ while True:
             list_landmarks = face_landmarks.landmark            
             
             
-            # Speak the mood if it has changed after 10 frames
-            if frame_count % 10 == 0:
+            # Speak the mood if it has changed after 5 frames
+            if frame_count % 5 == 0:
                 emotion_labels = calculate_mood(list_landmarks) # Calculate mood
                 
                 if emotion_labels != last_mood:
@@ -214,7 +215,7 @@ while True:
             
             
             # Display mood on the frame
-            cv.putText(canvas, f'Mood: {emotion_labels}', (10, 30), 
+            cv.putText(canvas, f"Mood: {emotion_labels} {emoji}", (10, 30), 
                     cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             
             
