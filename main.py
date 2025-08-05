@@ -6,6 +6,7 @@ import pyttsx3 as tts
 import mediapipe as mp
 import numpy as np
 import time
+from queue import Queue
 import threading
 
 
@@ -52,17 +53,24 @@ last_speak_mood_time = time.time()
 
 
 #Set queue alonside threading
+queue_speech = Queue()
+stop = threading.Event()
 
-# Function to speak the detected mood
-def speak_mood(mood):
-    """Speak the detected mood using text-to-speech."""
+def speak_mood_loop():
+    """Speak the detected mood - after previous mood said."""
+    while not stop.is_set():
+        if not queue_speech.empty():
+            mood_message = queue_speech.get()
+            engine.say(mood_message)
+            engine.runAndWait()
+        
+
+# Function to add the detected mood message
+def speak_mood(mood_message):
+    """Insert message into 'queue_speech()'"""
+    if queue_speech.empty():
+        queue_speech.put(mood_message)
     
-    global last_speak_mood_time
-    # Avoid speaking too frequently
-    if time.time() - last_speak_mood_time > 3:
-        # print(time.time())
-        threading.Thread(target=lambda: engine.say(f"Your mood is {mood}") or engine.runAndWait()).start()
-        last_speak_mood_time = time.time()
 
 
 def distance(point1, point2):
@@ -121,6 +129,11 @@ def calculate_mood(landmarks):
     
 #initialize frame count
 frame_count = 0
+
+# Start speaker thread
+speaker_thread = threading.Thread(target=speak_mood_loop, daemon=True)
+speaker_thread.start()
+
 
 # set up video capture
 cap = cv.VideoCapture(0)
@@ -225,6 +238,10 @@ while True:
 
         if cv.waitKey(1) == ord('q'):
             break
-    
+
+# Close thread
+stop.set()
+speaker_thread.join()
+
 cap.release()
 cv.destroyAllWindows()
