@@ -55,8 +55,6 @@ print(f"\nFinished processing all images in the folders successfully.")
 # Convert to numpy array
 X_train = np.array(X_train)
 y_train = np.array(y_train)
-print("\nShape of X_train:", X_train.shape)
-print("Shape of y_train:", y_train.shape)
 
 
 # Confirm length and splt into test and train
@@ -67,9 +65,10 @@ print("Shape of X_test:", X_test.shape)
 print("Shape of y_test:", y_test.shape)
 
 
-# Reshape and normalize
-X_train = X_train.reshape(-1, 150, 150, 1) / 255.0
-X_test = X_test.reshape(-1, 150, 150, 1) / 255.0
+# # Reshape and normalize
+# X_train = X_train.reshape(-1, 150, 150, 1) / 255.0
+# X_test = X_test.reshape(-1, 150, 150, 1) / 255.0
+
 
 # Encode labels
 encoder = LabelEncoder()
@@ -85,9 +84,10 @@ print("\nClasses:", encoder.classes_)
 
 
 
-"""Start building model"""
-# Call Sequential for CNN building
-model = Sequential()
+
+# """Start building model"""
+# # Call Sequential for CNN building
+# model = Sequential()
 
 
 
