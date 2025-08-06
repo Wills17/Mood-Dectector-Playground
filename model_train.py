@@ -83,11 +83,37 @@ y_test = to_categorical(y_test)
 print("\nClasses:", encoder.classes_)
 
 
+"""Start building model"""
+# Call Sequential for CNN building
+model = Sequential()
+
+# First layer with 64 NNs
+model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(150, 150, 1)))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+# Second layer with 128 NNs
+model.add(Conv2D(128, (3, 3), activation = "relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.25))
+
+# third layer with 256 NNs
+model.add(Conv2D(256, (3,3), activation = "relu"))
+model.add(BatchNormalization())
+model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Dropout(0.25))
 
 
-# """Start building model"""
-# # Call Sequential for CNN building
-# model = Sequential()
+# Fourth layer (fully connected)
+model.add(Flatten())
+model.add(Dense(512, activation = "relu"))
+# avod overfitting
+model.add(Dropout(0.5)) 
 
+
+# Output layer
+model.add(Dense(y_train.shape[1], activation="softmax"))  
 
 
