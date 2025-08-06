@@ -165,3 +165,7 @@ history = model.fit(
     verbose=1
 )
 
+print("Model Summary on version 2:\n")
+model.summary()
+
+
