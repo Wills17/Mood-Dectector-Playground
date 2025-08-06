@@ -31,23 +31,27 @@ for folder in folders:
     print("\nCurrent folder:", train_path)
     for current_img in tqdm(os.listdir(train_path)):
         
-        # Read and convert image to Grayscale
-        img = cv.imread(train_path + "/" + current_img, cv.IMREAD_GRAYSCALE)
-        
-        # Display image
-        # cv.imshow(f"Original Image {current_img}", img)
-        # cv.waitKey(1000)
-        
-        # resize images
-        img = cv.resize(img, (200, 200))
-        
-        # Show resized imaage
-        # cv.imshow(f"Resized Image {current_img}", img)
-        # cv.waitKey(1000)
-        # cv.destroyAllWindows()
-        
-        X_train.append(img)
-        y_train.append(folder)
+        try:
+            # Read and convert image to Grayscale
+            img = cv.imread(train_path + "/" + current_img, cv.IMREAD_GRAYSCALE)
+            
+            # Display image
+            # cv.imshow(f"Original Image {current_img}", img)
+            # cv.waitKey(1000)
+            
+            # resize images
+            img = cv.resize(img, (70, 70))
+            
+            # Show resized imaage
+            # cv.imshow(f"Resized Image {current_img}", img)
+            # cv.waitKey(1000)
+            # cv.destroyAllWindows()
+            
+            X_train.append(img)
+            y_train.append(folder)
+            
+        except:
+            print(f"Error loading: {img}")
         
     print("Appended all images in {} folder successfully.".format(folder))
     
@@ -68,8 +72,8 @@ print("Shape of y_test:", y_test.shape)
 
 
 # # Reshape and normalize
-# X_train = X_train.reshape(-1, 200, 200, 1) / 255.0
-# X_test = X_test.reshape(-1, 200, 200, 1) / 255.0
+# X_train = X_train.reshape(-1, 70, 70, 1) / 255.0
+# X_test = X_test.reshape(-1, 70, 70, 1) / 255.0
 
 
 # Encode labels
@@ -90,7 +94,7 @@ print("\nClasses:", encoder.classes_)
 model = Sequential()
 
 # First layer with 64 NNs
-model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(200, 200, 1)))
+model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(70, 70, 1)))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
