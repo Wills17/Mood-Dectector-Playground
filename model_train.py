@@ -9,8 +9,14 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Sequential 
 from tensorflow.keras.utils import to_categorical 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.losses import CategoricalCrossentropy
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization
+
+
 
 
 
@@ -40,7 +46,7 @@ for folder in folders:
             # cv.waitKey(1000)
             
             # resize images
-            img = cv.resize(img, (70, 70))
+            img = cv.resize(img, (60, 60))
             
             # Show resized imaage
             # cv.imshow(f"Resized Image {current_img}", img)
@@ -71,71 +77,91 @@ print("Shape of X_test:", X_test.shape)
 print("Shape of y_test:", y_test.shape)
 
 
-# # Reshape and normalize
-# X_train = X_train.reshape(-1, 70, 70, 1) / 255.0
-# X_test = X_test.reshape(-1, 70, 70, 1) / 255.0
+# --- Reshape and normalize
+X_train = X_train.reshape(-1, 60, 60, 1).astype('float32') / 255.0
+X_test = X_test.reshape(-1, 60, 60, 1).astype('float32') / 255.0
 
 
-# Encode labels
+# --- Encode labels ---
 encoder = LabelEncoder()
 y_train = encoder.fit_transform(y_train)
 y_test = encoder.transform(y_test)
 
-# One-hot encode for y_train
+class_names = encoder.classes_
+print("\nClasses:", class_names)
+
+# Perform one hot encoding
 y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 
-# Print classses
-print("\nClasses:", encoder.classes_)
+
+
+# --- Data augmentation ---
+datagen = ImageDataGenerator(
+    rotation_range=10,
+    zoom_range=0.1,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True
+)
+
+datagen.fit(X_train)
 
 
 """Start building model"""
-# Call Sequential for CNN building
 model = Sequential()
 
-# First layer with 64 NNs
-model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(70, 70, 1)))
+# First layer
+model.add(Conv2D(64, (3, 3), activation='relu', input_shape=(60, 60, 1)))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-# Second layer with 128 NNs
-model.add(Conv2D(128, (3, 3), activation = "relu"))
+# Second layer 
+model.add(Conv2D(128, (3, 3), activation='relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-# third layer with 256 NNs
-model.add(Conv2D(256, (3,3), activation = "relu"))
+# Third layer 
+model.add(Conv2D(256, (3, 3), activation='relu'))
 model.add(BatchNormalization())
-model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 
-# Fourth layer (fully connected)
+# Fully connected layer 
 model.add(Flatten())
-model.add(Dense(512, activation = "relu"))
-# avod overfitting
-model.add(Dropout(0.5)) 
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.5))
 
 
 # Output layer
-model.add(Dense(y_train.shape[1], activation="softmax"))  
+model.add(Dense(y_train.shape[1], activation='softmax'))
 
 
-# compile the model
-model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
+# Compile with label smoothing
+model.compile(
+    optimizer=Adam(learning_rate=0.001),
+    loss=CategoricalCrossentropy(label_smoothing=0.1),
+    metrics=['accuracy']
+)
 
-# model summary
-print("Model Summary: \n")
-model.summary()
+# Callbacks
+callbacks = [
+    ModelCheckpoint("emotions_model2.h5", monitor='val_accuracy', save_best_only=True, mode='max', verbose=1),
+    EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+    ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, min_lr=1e-6, verbose=1)
+]
 
 
-
-# Save the best model during training with checkpoint
-save_Model = ModelCheckpoint("emotions_model.h5", monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
-
-#train the model
-history = model.fit(X_train, y_train, epochs=25, batch_size=64, validation_split=0.2, callbacks=[save_Model])
-
+# Use augementation with training
+history = model.fit(
+    datagen.flow(X_train, y_train, batch_size=64),
+    validation_data=(X_test, y_test),
+    epochs=25,
+    callbacks=callbacks,
+    steps_per_epoch=len(X_train) // 64,
+    verbose=1
+)
 
