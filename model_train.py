@@ -1,12 +1,15 @@
 # import libraries
 import os
+import time
 import cv2 as cv
 import numpy as np
-from tensorflow.keras.utils import to_categorical
+from tqdm import tqdm
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-import time
-from tqdm import tqdm
+from tensorflow.keras.utils import to_categorical 
+from tensorflow.keras.models import Sequential 
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization
+
 
 
 # initializes list for images and label
@@ -49,9 +52,15 @@ for folder in folders:
 print(f"\nFinished processing all images in the folders successfully.")
 
 
+# Convert to numpy array
+X_train = np.array(X_train)
+y_train = np.array(y_train)
+print("\nShape of X_train:", X_train.shape)
+print("Shape of y_train:", y_train.shape)
+
 
 # Confirm length and splt into test and train
-X_train,X_test,y_train,y_test = train_test_split(X_train,y_train, test_size=0.2, random_state=32)
+X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.2, random_state=32)
 print("\nShape of X_train:", X_train.shape)
 print("Shape of y_train:", y_train.shape)
 print("Shape of X_test:", X_test.shape)
@@ -70,8 +79,15 @@ y_test = encoder.transform(y_test)
 # One-hot encode for y_train
 y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
-print("\ny_train:", y_train)
-print("\ny_test:", y_test)
 
+# Print classses
 print("\nClasses:", encoder.classes_)
+
+
+
+"""Start building model"""
+# Call Sequential for CNN building
+model = Sequential()
+
+
 
