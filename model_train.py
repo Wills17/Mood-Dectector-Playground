@@ -4,10 +4,12 @@ import time
 import cv2 as cv
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical 
 from tensorflow.keras.models import Sequential 
+from tensorflow.keras.utils import to_categorical 
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, BatchNormalization
 
 
@@ -37,7 +39,7 @@ for folder in folders:
         # cv.waitKey(1000)
         
         # resize images
-        img = cv.resize(img, (150, 150))
+        img = cv.resize(img, (200, 200))
         
         # Show resized imaage
         # cv.imshow(f"Resized Image {current_img}", img)
@@ -66,8 +68,8 @@ print("Shape of y_test:", y_test.shape)
 
 
 # # Reshape and normalize
-# X_train = X_train.reshape(-1, 150, 150, 1) / 255.0
-# X_test = X_test.reshape(-1, 150, 150, 1) / 255.0
+# X_train = X_train.reshape(-1, 200, 200, 1) / 255.0
+# X_test = X_test.reshape(-1, 200, 200, 1) / 255.0
 
 
 # Encode labels
@@ -88,7 +90,7 @@ print("\nClasses:", encoder.classes_)
 model = Sequential()
 
 # First layer with 64 NNs
-model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(150, 150, 1)))
+model.add(Conv2D(64, (3, 3), activation = "relu", input_shape=(200, 200, 1)))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
@@ -123,3 +125,13 @@ model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accur
 # model summary
 print("Model Summary: \n")
 model.summary()
+
+
+
+# Save the best model during training with checkpoint
+save_Model = ModelCheckpoint("emotions_model.h5", monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
+
+#train the model
+history = model.fit(X_train, y_train, epochs=25, batch_size=64, validation_split=0.2, callbacks=[save_Model])
+
+
