@@ -19,7 +19,7 @@ data_validate = "Face Expression Recognition Dataset/validation/"
 # List for arrays
 X_train = []
 y_train = []
-folders = ['surprise', 'disgust', 'happy', 'sad', 'fear', 'neutral', 'angry']
+folders = ["surprise", "disgust", "happy", "sad", "fear", "neutral", "angry"]
 
 
 # Load and append dataset for preprocessing
@@ -117,3 +117,9 @@ model.add(Dropout(0.5))
 model.add(Dense(y_train.shape[1], activation="softmax"))  
 
 
+# compile the model
+model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
+
+# model summary
+print("Model Summary: \n")
+model.summary()
