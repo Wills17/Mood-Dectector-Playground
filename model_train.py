@@ -77,12 +77,12 @@ print("Shape of X_test:", X_test.shape)
 print("Shape of y_test:", y_test.shape)
 
 
-# --- Reshape and normalize
+# yReshape and normalize
 X_train = X_train.reshape(-1, 60, 60, 1).astype('float32') / 255.0
 X_test = X_test.reshape(-1, 60, 60, 1).astype('float32') / 255.0
 
 
-# --- Encode labels ---
+# Encode labels
 encoder = LabelEncoder()
 y_train = encoder.fit_transform(y_train)
 y_test = encoder.transform(y_test)
@@ -96,7 +96,7 @@ y_test = to_categorical(y_test)
 
 
 
-# --- Data augmentation ---
+# Data augmentation
 datagen = ImageDataGenerator(
     rotation_range=10,
     zoom_range=0.1,
@@ -167,5 +167,4 @@ history = model.fit(
 
 print("Model Summary on version 2:\n")
 model.summary()
-
 
