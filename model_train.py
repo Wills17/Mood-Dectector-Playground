@@ -18,8 +18,6 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dens
 
 
 
-
-
 # initializes list for images and label
 data_train = "Face Expression Recognition Dataset/train/"
 data_validate = "Face Expression Recognition Dataset/validation/"
@@ -149,7 +147,7 @@ model.compile(
 
 # Callbacks
 callbacks = [
-    ModelCheckpoint("emotions_model2.h5", monitor='val_accuracy', save_best_only=True, mode='max', verbose=1),
+    ModelCheckpoint("emotions_model1.h5", monitor='val_accuracy', save_best_only=True, mode='max', verbose=1),
     EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
     ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=3, min_lr=1e-6, verbose=1)
 ]
@@ -157,11 +155,10 @@ callbacks = [
 
 # Use augementation with training
 history = model.fit(
-    datagen.flow(X_train, y_train, batch_size=64),
+    datagen.flow(X_train, y_train, batch_size=32),
     validation_data=(X_test, y_test),
     epochs=25,
     callbacks=callbacks,
-    steps_per_epoch=len(X_train) // 64,
     verbose=1
 )
 
