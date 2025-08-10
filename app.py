@@ -47,7 +47,6 @@ face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalf
 
 # Start camera
 cap = cv.VideoCapture(0)
-print("\n🔴 Real-time Emotion Detection Started... Press 'q' to quit.\n")
 
 app = Flask(__name__)
 
@@ -123,12 +122,16 @@ def generate_frames():
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def home():
+    return render_template('home.html')
+
+@app.route('/detect')
+def detect():
+    return render_template('detect.html')
 
 @app.route('/video_feed')
 def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=True)
