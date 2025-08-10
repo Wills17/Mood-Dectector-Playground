@@ -3,24 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>Empath-Eye: Real‑Time Emotion Detection</title>
+    <title>Empath-Eye: Real-Time Emotion Detection</title>
     <meta name="description" content="Empath-Eye static demo UI for real-time emotion detection using only HTML and CSS." />
-    <meta name="author" content="Lovable" />
     <link rel="canonical" href="/" />
-
-    <meta property="og:title" content="Empath-Eye: Real‑Time Emotion Detection" />
-    <meta property="og:description" content="Static UI demo for camera-based emotion detection." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <meta property="og:url" content="/" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Empath-Eye: Real‑Time Emotion Detection" />
-    <meta name="twitter:description" content="Static UI demo for camera-based emotion detection." />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
 
   <body>
@@ -28,10 +14,10 @@
 
     <header class="site-header" role="banner">
       <div class="container nav">
-        <div class="brand">Empath‑Eye</div>
+        <div class="brand">Empath-Eye</div>
         <nav aria-label="Primary">
           <div class="nav-links">
-            <a class="story-link" href="/">Home</a>
+            <a class="story-link" href="/" aria-current="page">Home</a>
             <a class="story-link" href="/detect">Detection</a>
             <a class="story-link" href="#features">Features</a>
             <a class="story-link" href="#preview">Preview</a>
@@ -43,11 +29,8 @@
     <main id="main" role="main">
       <section class="hero animate-fade-in section">
         <div class="container">
-          <h1>Empath‑Eye — Real‑Time Emotion Detection</h1>
-          <p>
-            A static UI inspired by a computer‑vision pipeline: face detection, 48×48 grayscale preprocessing,
-            CNN prediction, and spoken feedback.
-          </p>
+          <h1>Empath-Eye — Real-Time Emotion Detection</h1>
+          <p>A static UI inspired by a computer-vision pipeline: face detection, 48×48 grayscale preprocessing, CNN prediction, and spoken feedback.</p>
           <div class="hero-actions">
             <a class="btn btn-primary hover-scale" href="/detect" aria-label="Open detection page">Open Detection Page</a>
             <a class="btn btn-outline hover-scale" href="#features" aria-label="Learn more about features">Learn More</a>
@@ -57,22 +40,22 @@
 
       <section id="preview" class="section">
         <div class="container grid two" aria-label="Static preview of the app UI">
-          <article class="card frame" aria-label="Camera frame mock">
-            <div class="canvas" aria-hidden="true"></div>
-            <div class="box" aria-hidden="true"></div>
-            <div class="label" aria-hidden="true">Happy (97.4%)</div>
-            <div class="stats" aria-hidden="true">
+          <article class="card frame">
+            <div class="canvas"></div>
+            <div class="box"></div>
+            <div class="label">Happy (97.4%)</div>
+            <div class="stats">
               <span>Last spoken: “You look happy”</span>
               <span>Interval: 7s</span>
             </div>
           </article>
 
-          <aside class="card" aria-label="Explanation">
-            <h2 style="margin: 0 0 .35rem 0; font-size: 1.05rem;">What you’re seeing</h2>
+          <aside class="card">
+            <h2 style="margin: 0 0 .35rem 0;">What you’re seeing</h2>
             <ul class="muted" style="margin: .5rem 0 0 0; padding-left: 1.1rem;">
               <li>Face detection via a Haar cascade.</li>
               <li>Grayscale crop resized to 48×48 and normalized.</li>
-              <li>Model predicts one of: Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise.</li>
+              <li>Model predicts: Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise.</li>
               <li>UI overlays a bounding box and confidence label.</li>
               <li>Spoken feedback announces the current emotion at safe intervals.</li>
             </ul>
@@ -80,21 +63,21 @@
         </div>
       </section>
 
-      <section id="features" class="section-xl" aria-labelledby="features-title">
+      <section id="features" class="section-lg">
         <div class="container">
-          <h2 id="features-title" style="font-size: 1.6rem; margin: 0 0 .75rem 0;">Features</h2>
+          <h2>Features</h2>
           <div class="grid three">
             <article class="card">
-              <h3>Real‑time mindset</h3>
-              <p class="muted">Designed for continuous detection with periodic predictions to balance performance.</p>
+              <h3>Real-time mindset</h3>
+              <p class="muted">Continuous detection with periodic predictions to balance performance.</p>
             </article>
             <article class="card">
               <h3>Clear overlays</h3>
-              <p class="muted">Bounding boxes and confidence labels visualize the prediction clearly and accessibly.</p>
+              <p class="muted">Bounding boxes and confidence labels make the prediction clear.</p>
             </article>
             <article class="card">
               <h3>Voice feedback</h3>
-              <p class="muted">Text‑to‑speech phrasing adapts grammatically to the predicted emotion.</p>
+              <p class="muted">Text-to-speech adapts grammar to the predicted emotion.</p>
             </article>
           </div>
         </div>
@@ -102,7 +85,7 @@
     </main>
 
     <footer class="site-footer section">
-      <div class="container" style="text-align: center;">Static concept UI. No camera access or JavaScript — HTML and CSS only.</div>
+      <div class="container" style="text-align: center;">Static concept UI — HTML & CSS only.</div>
     </footer>
   </body>
 </html>
