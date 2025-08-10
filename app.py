@@ -17,7 +17,7 @@ print("\nModel loaded and running!")
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Labels for emotions
-emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
 
 
 # Initialize TTS
@@ -27,17 +27,13 @@ engine.setProperty('rate', 160)
 # Function to run speech in background
 def speak_emotion(emotion):
     def _speak():
-        try:
-            if emotion_labels == "Fear":
-                engine.say(f"You look {emotion.lower()}ful")  # fearful
-            elif emotion_labels == "Surprise":
-                engine.say(f"You look {emotion.lower()}d")    # surprised
-            else:
-                engine.say(f"You look {emotion.lower()}")
-            engine.runAndWait()
-        except RuntimeError:
-            print("Reached Runtime error but ignored")
-            engine.runAndWait()
+        if emotion_labels == "Fear":
+              engine.say(f"You look {emotion.lower()}ful")  # fearful
+        elif emotion_labels == "Surprise":
+            engine.say(f"You look {emotion.lower()}d")    # surprised
+        else:
+            engine.say(f"You look {emotion.lower()}")
+        engine.runAndWait()
         
     threading.Thread(target=_speak, daemon=True).start()
 
@@ -49,7 +45,6 @@ face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalf
 cap = cv.VideoCapture(0)
 
 app = Flask(__name__)
-
 
 def gen_frames():
     
@@ -74,14 +69,17 @@ def gen_frames():
         frame2gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # Detect faces
-        faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=5)
+        faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=5, minSize=(48, 48))
         
-        for (x,y, w, h) in faces:
+        if len(faces) > 0:
+            # Detect largest face
+            x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
+            
             
             if frame_count % detect_interval == 0:
                 face = frame2gray[y:y+h, x:x+w]
                 face_resized = cv.resize(face, (48, 48))
-                face_normalized = face_resized / 255.0
+                face_normalized = face_resized.astype("float32") / 255.0
                 face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
 
                 # Prediction
@@ -110,6 +108,7 @@ def gen_frames():
                     last_spoken_emotion = predicted_emotion
                     last_spoken_time = current_time
                 
+        frame_count += 1
                 
         # Encode frame to JPEG
         ret, buffer = cv.imencode('.jpg', frame)
