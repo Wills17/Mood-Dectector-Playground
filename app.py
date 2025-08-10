@@ -58,7 +58,6 @@ def generate_frames():
     frame_count = 0
     
     
-
     while True:
         ret, frame = cap.read()
         if not ret:
