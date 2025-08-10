@@ -48,9 +48,6 @@ face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalf
 # Start camera
 cap = cv.VideoCapture(0)
 
-app = Flask(__name__)
-
-
 def generate_frames():
     
     # detection frequency
@@ -121,10 +118,12 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
+# home
 @app.route('/')
 def home():
     return render_template('home.html')
 
+# detect route
 @app.route('/detect')
 def detect():
     return render_template('detect.html')
@@ -134,4 +133,4 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+     app.run(debug=True)
