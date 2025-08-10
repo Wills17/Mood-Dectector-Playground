@@ -66,8 +66,12 @@ def gen_frames():
 
         # Detect faces
         faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=1)
-
-        for (x, y, w, h) in faces:
+        
+        if len(faces) > 0:
+            
+            # use only the first face detected
+            (x, y, w, h) = faces[0]  
+        
             face = frame2gray[y:y+h, x:x+w]
             face_resized = cv.resize(face, (48, 48))
             face_normalized = face_resized / 255.0
