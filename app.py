@@ -27,13 +27,17 @@ engine.setProperty('rate', 160)
 # Function to run speech in background
 def speak_emotion(emotion):
     def _speak():
-        if emotion_labels == "Fear":
-            engine.say(f"You look {emotion.lower()}ful")  # fearful
-        elif emotion_labels == "Surprise":
-            engine.say(f"You look {emotion.lower()}d")    # surprised
-        else:
-            engine.say(f"You look {emotion.lower()}")
-        engine.runAndWait()
+        try:
+            if emotion_labels == "Fear":
+                engine.say(f"You look {emotion.lower()}ful")  # fearful
+            elif emotion_labels == "Surprise":
+                engine.say(f"You look {emotion.lower()}d")    # surprised
+            else:
+                engine.say(f"You look {emotion.lower()}")
+            engine.runAndWait()
+        except RuntimeError:
+            print("Reached Runtime error but ignored")
+            engine.runAndWait()
         
     threading.Thread(target=_speak, daemon=True).start()
 
@@ -54,7 +58,7 @@ def gen_frames():
     speak_interval = 7  #7 seconds
     detect_interval = 10  #frames between predictions
     last_spoken_emotion = None
-    frame_counter = 0
+    frame_count = 0
     
     
 
@@ -74,37 +78,37 @@ def gen_frames():
         
         for (x,y, w, h) in faces:
             
-        
-            face = frame2gray[y:y+h, x:x+w]
-            face_resized = cv.resize(face, (48, 48))
-            face_normalized = face_resized / 255.0
-            face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
+            if frame_count % detect_interval == 0:
+                face = frame2gray[y:y+h, x:x+w]
+                face_resized = cv.resize(face, (48, 48))
+                face_normalized = face_resized / 255.0
+                face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
 
-            # Prediction
-            prediction = model.predict(face_reshaped, verbose=0)
-            emotion_index = np.argmax(prediction)
-            predicted_emotion = emotion_labels[emotion_index]
-            confidence = np.max(prediction) * 100
-            
-            #print predicted values
-            print("\nRaw Prediction", prediction)
-            
+                # Prediction
+                prediction = model.predict(face_reshaped, verbose=0)
+                emotion_index = np.argmax(prediction)
+                predicted_emotion = emotion_labels[emotion_index]
+                confidence = np.max(prediction) * 100
+                
+                #print predicted values
+                print("\nDetections:", prediction)
+                print("\nPredictions:", predicted_emotion)
 
-            # Draw rectangle around face
-            color = (0, 0, 255) if predicted_emotion == 'Happy' else (255, 0, 0)
-            cv.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+                # Draw rectangle around face
+                color = (0, 0, 255) if predicted_emotion == 'Happy' else (255, 0, 0)
+                cv.rectangle(frame, (x, y), (x + w, y + h), color, 2)
 
-            label = f"{predicted_emotion} ({confidence:.1f}%)"
-            cv.putText(frame, label, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
-            
-            
-            # Speak if detected another emotion and time interval crossed
-            current_time = time.time()
-            
-            if (predicted_emotion != last_spoken_emotion) or (current_time - last_spoken_time > speak_interval):
-                speak_emotion(predicted_emotion)
-                last_spoken_emotion = predicted_emotion
-                last_spoken_time = current_time
+                label = f"{predicted_emotion} ({confidence:.1f}%)"
+                cv.putText(frame, label, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+                
+                
+                # Speak if detected another emotion and time interval crossed
+                current_time = time.time()
+                
+                if (predicted_emotion != last_spoken_emotion) or (current_time - last_spoken_time > speak_interval):
+                    speak_emotion(predicted_emotion)
+                    last_spoken_emotion = predicted_emotion
+                    last_spoken_time = current_time
                 
                 
         # Encode frame to JPEG
