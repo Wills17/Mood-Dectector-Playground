@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Empath‑Eye Detection: Static Emotion Detection</title>
+    <meta name="description" content="Empath‑Eye detection page: a static, interactive mock of real‑time emotion detection using only HTML and CSS." />
+    <meta name="author" content="Lovable" />
+    <link rel="canonical" href="/detection.html" />
+
+    <meta property="og:title" content="Empath‑Eye Detection: Static Emotion Detection" />
+    <meta property="og:description" content="Explore the static mock of camera‑based emotion detection with animated overlays." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="/detection.html" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Empath‑Eye Detection: Static Emotion Detection" />
+    <meta name="twitter:description" content="Static mock with hover‑interactive overlays and labels." />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Empath‑Eye Detection",
+      "url": "/detection.html",
+      "description": "Static, interactive mock of real‑time emotion detection using only HTML and CSS."
+    }
+    </script>
+
+    <style>
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222 84% 5%;
+        --muted: 214 32% 91%;
+        --border: 214 32% 91%;
+        --primary: 224 76% 48%;
+        --primary-contrast: 0 0% 100%;
+        --accent: 217 91% 60%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 84% 7%;
+        --shadow: 0 10px 30px -12px hsl(224 76% 48% / 0.25);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        color: hsl(var(--foreground));
+        background: hsl(var(--background));
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.5;
+      }
+      a { color: inherit; text-decoration: none; }
+      img { max-width: 100%; display: block; }
+
+      .container { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+
+      /* Header */
+      .site-header { position: sticky; top: 0; background: hsl(var(--background)); border-bottom: 1px solid hsl(var(--border)); z-index: 10; backdrop-filter: saturate(1.1) blur(6px); }
+      .nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 0; }
+      .brand { font-weight: 700; letter-spacing: -0.02em; font-size: 1.05rem; }
+      .nav-links { display: flex; gap: 1rem; font-size: 0.95rem; color: hsl(222 8% 40%); }
+      .nav-links a[aria-current="page"] { font-weight: 700; color: hsl(var(--foreground)); }
+
+      /* Link underline animation */
+      .story-link { position: relative; display: inline-block; }
+      .story-link::after { content: ""; position: absolute; left: 0; bottom: -2px; height: 2px; width: 100%; background: hsl(var(--primary)); transform: scaleX(0); transform-origin: right; transition: transform 300ms ease; }
+      .story-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+      /* Buttons */
+      .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; padding: 0.8rem 1.1rem; font-weight: 600; font-size: 0.95rem; transition: all 220ms ease; cursor: pointer; }
+      .btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-contrast)); box-shadow: var(--shadow); }
+      .btn-primary:hover { filter: brightness(1.05); transform: translateY(-1px); }
+      .btn-outline { border: 1px solid hsl(var(--border)); background: hsl(var(--background)); }
+      .btn-outline:hover { background: hsl(var(--muted)); }
+
+      /* Hero */
+      .hero { padding: 4.5rem 0 2rem; text-align: center; }
+      .hero h1 { font-size: clamp(2rem, 3vw + 1rem, 3rem); line-height: 1.1; margin: 0; letter-spacing: -0.02em; }
+      .hero p { color: hsl(222 10% 40%); font-size: 1.05rem; max-width: 48rem; margin: 1rem auto 0; }
+      .hero-actions { display: flex; gap: 0.8rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; }
+
+      /* Grid & cards */
+      .grid { display: grid; gap: 1rem; }
+      @media (min-width: 768px) { .grid.two { grid-template-columns: 1fr 1fr; } .grid.three { grid-template-columns: repeat(3, 1fr); } }
+      .card { background: hsl(var(--card)); color: hsl(var(--card-foreground)); border: 1px solid hsl(var(--border)); border-radius: 14px; box-shadow: 0 1px 0 hsl(0 0% 0% / 0.02); padding: 1rem; transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+      .card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -14px hsl(224 76% 48% / 0.25); border-color: hsl(var(--accent)); }
+      .card h3 { margin: 0; font-size: 1rem; }
+      .muted { color: hsl(222 10% 40%); font-size: 0.95rem; }
+
+      /* Frame mock */
+      .frame { position: relative; height: 22rem; overflow: hidden; }
+      @media (min-width: 768px) { .frame { height: 26rem; } }
+      .frame .canvas { position: absolute; inset: 0; border-radius: 10px; border: 1px solid hsl(var(--border)); background: linear-gradient(180deg, hsl(216 33% 97%), hsl(210 25% 95%)); }
+      .frame .box { position: absolute; left: 3.25rem; top: 2.5rem; width: 8rem; height: 8rem; border: 2px solid hsl(var(--accent)); border-radius: 3px; transition: transform 200ms ease, box-shadow 200ms ease; }
+      .frame:hover .box { transform: translate(6px, -4px); box-shadow: 0 0 0 6px hsl(217 91% 60% / 0.15); }
+      .frame .label { position: absolute; left: 3.25rem; top: 2.2rem; transform: translateY(-8px); background: hsl(var(--accent)); color: white; padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: 4px; box-shadow: 0 4px 14px hsl(217 91% 60% / 0.3); }
+      .frame:hover .label { animation: bounce 700ms ease; }
+      .frame .stats { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; display: flex; justify-content: space-between; color: hsl(222 10% 40%); font-size: 0.8rem; }
+
+      /* Sections */
+      .section { padding: 1.25rem 0; }
+      .section-lg { padding: 2.5rem 0; }
+
+      /* Animations */
+      @keyframes fade-in { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+      @keyframes bounce { 0%, 100% { transform: translateY(-8px); } 50% { transform: translateY(-2px); } }
+
+      .animate-fade-in { animation: fade-in 0.3s ease-out both; }
+      .hover-scale { transition: transform 200ms ease; }
+      .hover-scale:hover { transform: scale(1.05); }
+
+      /* Footer */
+      .site-footer { border-top: 1px solid hsl(var(--border)); color: hsl(222 10% 40%); font-size: 0.9rem; }
+
+      /* SR only */
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    </style>
+  </head>
+
+  <body>
+    <a class="sr-only" href="#main">Skip to main content</a>
+
+    <header class="site-header" role="banner">
+      <div class="container nav">
+        <div class="brand">Empath‑Eye</div>
+        <nav aria-label="Primary">
+          <div class="nav-links">
+            <a class="story-link" href="/">Home</a>
+            <a class="story-link" href="/detection.html" aria-current="page">Detection</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" role="main">
+      <section class="hero animate-fade-in section">
+        <div class="container">
+          <h1>Detection Demo — Static Overlay Preview</h1>
+          <p>
+            This page shows a CSS‑only mock of the detection experience — bounding box, confidence label,
+            and status bar — to mirror a real pipeline without using JavaScript.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary hover-scale" href="#preview" aria-label="Jump to static preview">See Preview</a>
+            <a class="btn btn-outline hover-scale" href="/" aria-label="Back to homepage">Back to Home</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="preview" class="section">
+        <div class="container grid two" aria-label="Static detection preview">
+          <article class="card frame" aria-label="Camera frame mock">
+            <div class="canvas" aria-hidden="true"></div>
+            <div class="box" aria-hidden="true"></div>
+            <div class="label" aria-hidden="true">Neutral (88.2%)</div>
+            <div class="stats" aria-hidden="true">
+              <span>Last spoken: “You look neutral”</span>
+              <span>Interval: 7s</span>
+            </div>
+          </article>
+
+          <aside class="card" aria-label="How it works">
+            <h2 style="margin: 0 0 .35rem 0; font-size: 1.05rem;">How this mock behaves</h2>
+            <ul class="muted" style="margin: .5rem 0 0 0; padding-left: 1.1rem;">
+              <li>Hover over the frame to nudge the bounding box and animate the label.</li>
+              <li>All visuals are pure HTML and CSS with no runtime scripts.</li>
+              <li>The layout mirrors a classic CV pipeline UI for easy iteration.</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section-lg" aria-labelledby="notes-title">
+        <div class="container grid three">
+          <article class="card"><h3>48×48 crop</h3><p class="muted">Represents preprocessed grayscale input.</p></article>
+          <article class="card"><h3>Confidence label</h3><p class="muted">Shows the top class with percentage.</p></article>
+          <article class="card"><h3>Safe intervals</h3><p class="muted">Mimics throttled TTS updates.</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer section">
+      <div class="container" style="text-align: center;">Static detection preview. No camera access or JavaScript — HTML and CSS only.</div>
+    </footer>
+  </body>
+</html>
