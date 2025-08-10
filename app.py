@@ -52,7 +52,7 @@ print("\n🔴 Real-time Emotion Detection Started... Press 'q' to quit.\n")
 app = Flask(__name__)
 
 
-def gen_frames():
+def generate_frames():
     
     # detection frequency
     last_spoken_time = 0
