@@ -13,6 +13,10 @@ warnings.filterwarnings("ignore")
 model = load_model("emotions_model.h5")
 print("\nModel loaded and running!")
 
+# Warm up model preventing lag
+model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
+
+
 # Initialize Flask application
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -27,9 +31,9 @@ engine.setProperty('rate', 160)
 # Function to run speech in background
 def speak_emotion(emotion):
     def _speak():
-        if emotion_labels == "Fear":
+        if emotion== "Fear":
               engine.say(f"You look {emotion.lower()}ful")  # fearful
-        elif emotion_labels == "Surprise":
+        elif emotion == "Surprise":
             engine.say(f"You look {emotion.lower()}d")    # surprised
         else:
             engine.say(f"You look {emotion.lower()}")
@@ -43,7 +47,7 @@ face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalf
 
 # Start camera
 cap = cv.VideoCapture(0)
-print("\n🔴 Real-time Emotion Detection Started... Press 'q' to quit.")
+print("\n🔴 Real-time Emotion Detection Started... Press 'q' to quit.\n")
 
 app = Flask(__name__)
 
@@ -74,40 +78,40 @@ def gen_frames():
         faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=5, minSize=(48, 48))
         
         if len(faces) > 0:
-            # Detect largest face
+            # Only keep the largest face
             x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
             
+            # Preprocess detected face
             face = frame2gray[y:y+h, x:x+w]
             face_resized = cv.resize(face, (48, 48))
             face_normalized = face_resized.astype("float32") / 255.0
             face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
-                
+
             if frame_count % detect_interval == 0:
                 # Prediction
                 prediction = model.predict(face_reshaped, verbose=0)
-                emotion_index = np.argmax(prediction)
+                emotion_index = int(np.argmax(prediction))
                 predicted_emotion = emotion_labels[emotion_index]
                 confidence = np.max(prediction) * 100
                 
                 #print predicted values
                 print("\nDetections:", prediction)
-                print("\nPredictions:", predicted_emotion)
+                print("Prediction:", predicted_emotion)
+            
+            # Draw rectangle around face
+            cv.rectangle(frame, (x, y), (x + w, y + h), (100, 200, 225), 2)
 
-                # Draw rectangle around face
-                color = (0, 0, 255) if predicted_emotion == 'Happy' else (255, 0, 0)
-                cv.rectangle(frame, (x, y), (x + w, y + h), color, 2)
-
-                label = f"{predicted_emotion} ({confidence:.1f}%)"
-                cv.putText(frame, label, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+            label = f"{predicted_emotion} ({confidence:.1f}%)"
+            cv.putText(frame, label, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.8, (100, 200, 225), 2)
                 
                 
-                # Speak if detected another emotion and time interval crossed
-                current_time = time.time()
-                
-                if (predicted_emotion != last_spoken_emotion) or (current_time - last_spoken_time > speak_interval):
-                    speak_emotion(predicted_emotion)
-                    last_spoken_emotion = predicted_emotion
-                    last_spoken_time = current_time
+            # Speak if detected another emotion and time interval crossed
+            current_time = time.time()
+            
+            if (predicted_emotion != last_spoken_emotion) or (current_time - last_spoken_time > speak_interval):
+                speak_emotion(predicted_emotion)
+                last_spoken_emotion = predicted_emotion
+                last_spoken_time = current_time
                 
         frame_count += 1
                 
