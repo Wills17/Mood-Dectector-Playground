@@ -43,8 +43,10 @@ face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalf
 
 # Start camera
 cap = cv.VideoCapture(0)
+print("\n🔴 Real-time Emotion Detection Started... Press 'q' to quit.")
 
 app = Flask(__name__)
+
 
 def gen_frames():
     
@@ -75,13 +77,12 @@ def gen_frames():
             # Detect largest face
             x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
             
-            
+            face = frame2gray[y:y+h, x:x+w]
+            face_resized = cv.resize(face, (48, 48))
+            face_normalized = face_resized.astype("float32") / 255.0
+            face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
+                
             if frame_count % detect_interval == 0:
-                face = frame2gray[y:y+h, x:x+w]
-                face_resized = cv.resize(face, (48, 48))
-                face_normalized = face_resized.astype("float32") / 255.0
-                face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
-
                 # Prediction
                 prediction = model.predict(face_reshaped, verbose=0)
                 emotion_index = np.argmax(prediction)
