@@ -49,9 +49,14 @@ app = Flask(__name__)
 
 def gen_frames():
     
+    # detection frequency
     last_spoken_time = 0
-    speak_interval = 7  # 7 seconds
+    speak_interval = 7  #7 seconds
+    detect_interval = 10  #frames between predictions
     last_spoken_emotion = None
+    frame_counter = 0
+    
+    
 
     while True:
         ret, frame = cap.read()
@@ -65,7 +70,7 @@ def gen_frames():
         frame2gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # Detect faces
-        faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=1)
+        faces = face_cascade.detectMultiScale(frame2gray, scaleFactor=1.2, minNeighbors=5)
         
         if len(faces) > 0:
             
@@ -82,6 +87,10 @@ def gen_frames():
             emotion_index = np.argmax(prediction)
             predicted_emotion = emotion_labels[emotion_index]
             confidence = np.max(prediction) * 100
+            
+            #print predicted values
+            print("\nRaw Prediction", prediction)
+            
 
             # Draw rectangle around face
             color = (0, 0, 255) if predicted_emotion == 'Happy' else (255, 0, 0)
@@ -90,7 +99,8 @@ def gen_frames():
             label = f"{predicted_emotion} ({confidence:.1f}%)"
             cv.putText(frame, label, (x, y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
             
-            # Speak if detected another emotion
+            
+            # Speak if detected another emotion and time interval crossed
             current_time = time.time()
             
             if (predicted_emotion != last_spoken_emotion) or (current_time - last_spoken_time > speak_interval):
