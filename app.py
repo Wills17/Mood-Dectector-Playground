@@ -14,15 +14,15 @@ model = load_model("emotions_model.h5")
 print("\nModel loaded and running!")
 
 # Warm up model preventing lag
-model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
-
+warmup = model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
+print(warmup, "\nModel warmed up and ready for prediction!")
 
 # Initialize Flask application
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
+
 # Labels for emotions
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
-
 
 # Initialize TTS
 engine = pyttsx3.init()
@@ -133,3 +133,11 @@ def video_feed():
 
 if __name__ == '__main__':
      app.run(debug=True)
+     
+
+
+
+
+     
+"""Next work, only start camera when user taps on start detection in predict page"""
+"""Edit light and dark mode"""
