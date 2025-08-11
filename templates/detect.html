@@ -26,9 +26,25 @@
         <p class="muted">Your webcam feed is analyzed in real-time.</p>
 
         <div class="card frame" style="height: auto;">
-          <img src="{{ url_for('video_feed') }}" alt="Video feed" style="width: 100%; border-radius: 10px;">
+          <img src="{{ url_for('video_feed') }}" alt="Video feed" style="width: 50%; border-radius: 10px;">
         </div>
 
+        <input type="checkbox" id="theme-toggle" class="sr-only" aria-label="Toggle dark mode" />
+        <label for="theme-toggle" class="theme-switch" aria-live="polite">
+          <span class="sun">Light</span>
+          <span class="knob" aria-hidden="true"></span>
+          <span class="moon">Dark</span>
+        </label>
+
+        <div class="page">
+          <main id="main" role="main" class="main">
+            <h1 class="sr-only">Empath‑Eye Detection Controls</h1>
+            <div class="controls">
+              <button class="btn btn-primary">Start camera</button>
+              <button class="btn btn-outline">Stop camera</button>
+            </div>
+
+        </div>
         <div style="margin-top: 1.5rem;">
           <a class="btn btn-outline hover-scale" href="/">← Back to Home</a>
         </div>
