@@ -66,6 +66,18 @@ def predict_from_pil(img: Image.Image):
     return emotion, confidence, preds.tolist()
 
 
+# home page
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+# detect page
+@app.route('/detect')
+def detect():
+    return render_template('detect.html')
+
+
 @app.route("/predict_frame", methods=["POST"])
 def predict_frame():
     """
@@ -75,7 +87,7 @@ def predict_frame():
     Returns JSON: { emotion, confidence, probs }
     """
     try:
-        # 1) file upload via form
+        # file upload via form
         if "frame" in request.files:
             file = request.files["frame"]
             img = Image.open(file.stream)
@@ -105,21 +117,10 @@ def predict_frame():
             "confidence": round(confidence, 2),
             "probs": probs
         })
+        
     except Exception as e:
         app.logger.exception("predict_frame error")
         return jsonify({"error": str(e)}), 500
-
-
-# home page
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-
-# detect page
-@app.route('/detect')
-def detect():
-    return render_template('detect.html')
 
 
 # Health status check 
