@@ -1,4 +1,4 @@
-// State variables
+// ====== State Variables ======
 let isDetecting = false;
 let currentEmotion = 'Neutral';
 let detectionHistory = [];
@@ -6,6 +6,7 @@ let cameraEnabled = false;
 let audioEnabled = false;
 let detectionInterval;
 
+const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
     'Happy': '😊',
     'Sad': '😢',
@@ -16,7 +17,7 @@ const emotionEmojis = {
     'Disgust': '🤢'
 };
 
-// Elements
+// ====== DOM Elements ======
 const startStopBtn = document.getElementById('startStopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const toggleCameraBtn = document.getElementById('toggleCamera');
@@ -28,7 +29,10 @@ const historyList = document.getElementById('historyList');
 const cameraOffState = document.getElementById('cameraOffState');
 const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
+const videoStream = document.getElementById('videoStream');
 
+
+// Event Listening
 // Start/Stop Detection
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
@@ -57,6 +61,8 @@ toggleAudioBtn.addEventListener('click', () => {
     updateAudioState();
 });
 
+// Functions 
+
 function updateDetectionState() {
     if (isDetecting) {
         startStopBtn.classList.add('detecting');
@@ -65,14 +71,17 @@ function updateDetectionState() {
         startStopBtn.querySelector('.btn-text').textContent = 'Stop';
         emotionSpeech.classList.remove('hidden');
 
-        // Show live Flask video feed
-        if (cameraEnabled) {
-            cameraOnState.innerHTML = '<img id="videoStream" src="/video_feed" width="100%" />';
-            cameraOffState.classList.add('hidden');
-        }
+        // Start emotion simulation
+        detectionInterval = setInterval(() => {
+            const newEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            currentEmotion = newEmotion;
+            detectionHistory.unshift(newEmotion);
+            if (detectionHistory.length > 10) detectionHistory.pop();
 
-        // Poll predictions from Flask
-        detectionInterval = setInterval(fetchPrediction, 2000);
+            updateCurrentEmotion();
+            updateHistory();
+            updateEmotionCards();
+        }, 3000);
 
     } else {
         startStopBtn.classList.remove('detecting');
@@ -81,36 +90,16 @@ function updateDetectionState() {
         startStopBtn.querySelector('.btn-text').textContent = 'Start';
         emotionSpeech.classList.add('hidden');
 
-        // Stop video feed
-        cameraOnState.innerHTML = '';
-        cameraOffState.classList.remove('hidden');
-
-        if (detectionInterval) clearInterval(detectionInterval);
+        if (detectionInterval) {
+            clearInterval(detectionInterval);
+        }
     }
 
     updateCameraState();
 }
 
-async function fetchPrediction() {
-    try {
-        const res = await fetch('/current_prediction');
-        if (!res.ok) throw new Error("Prediction request failed");
-        const data = await res.json();
-        currentEmotion = data.emotion || 'Neutral';
-
-        detectionHistory.unshift(currentEmotion);
-        if (detectionHistory.length > 10) detectionHistory.pop();
-
-        updateCurrentEmotion();
-        updateHistory();
-        updateEmotionCards();
-    } catch (err) {
-        console.error("Prediction fetch failed:", err);
-    }
-}
-
 function updateCurrentEmotion() {
-    emotionEmoji.textContent = emotionEmojis[currentEmotion] || '😐';
+    emotionEmoji.textContent = emotionEmojis[currentEmotion];
     emotionName.textContent = currentEmotion;
     emotionSpeech.innerHTML = `🎤 Speaking: "You look ${currentEmotion.toLowerCase()}"`;
 
@@ -127,7 +116,7 @@ function updateHistory() {
     } else {
         historyList.innerHTML = detectionHistory.map((emotion, index) => `
             <div class="history-item ${index === 0 ? 'latest' : ''}">
-                <span class="history-emoji">${emotionEmojis[emotion] || '😐'}</span>
+                <span class="history-emoji">${emotionEmojis[emotion]}</span>
                 <span class="history-label">${emotion}</span>
                 ${index === 0 ? '<span class="latest-badge">Latest</span>' : ''}
             </div>
@@ -152,12 +141,22 @@ function updateCameraState() {
         cameraOffState.classList.add('hidden');
         cameraOnState.classList.remove('hidden');
         faceOverlay.classList.remove('hidden');
+
+        // 🔹 Load Flask video feed
+        if (videoStream.src !== "/video_feed") {
+            videoStream.src = "/video_feed";
+        }
+
     } else {
         cameraOffState.classList.remove('hidden');
         cameraOnState.classList.add('hidden');
         faceOverlay.classList.add('hidden');
+
+        // 🔹 Stop feed when camera off
+        videoStream.src = "";
     }
 
+    // Update camera button styles
     if (cameraEnabled) {
         toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
         toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
