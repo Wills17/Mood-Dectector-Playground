@@ -1,21 +1,21 @@
 // Simple JavaScript for interactive features
 let isDetecting = false;
-        let currentEmotion = 'Neutral';
-        let detectionHistory = [];
-        let cameraEnabled = false;
-        let audioEnabled = false;
-        let detectionInterval;
+let currentEmotion = 'Neutral';
+let detectionHistory = [];
+let cameraEnabled = false;
+let audioEnabled = false;
+let detectionInterval;
 
-        const emotions = ['Happy', 'Neutral', 'Surprise', 'Sad'];
-        const emotionEmojis = {
-            'Happy': '😊',
-            'Sad': '😢',
-            'Angry': '😠',
-            'Fear': '😨',
-            'Surprise': '😲',
-            'Neutral': '😐',
-            'Disgust': '🤢'
-        };
+const emotions = ['Happy', 'Neutral', 'Surprise', 'Sad'];
+const emotionEmojis = {
+    'Happy': '😊',
+    'Sad': '😢',
+    'Angry': '😠',
+    'Fear': '😨',
+    'Surprise': '😲',
+    'Neutral': '😐',
+    'Disgust': '🤢'
+    };
 
         // Elements
         const startStopBtn = document.getElementById('startStopBtn');
