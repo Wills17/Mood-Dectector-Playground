@@ -110,15 +110,25 @@ def predict_frame():
         return jsonify({"error": str(e)}), 500
 
 
+# home page
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+
+# detect page
+@app.route('/detect')
+def detect():
+    return render_template('detect.html')
+
+
 # Health status check 
 @app.route("/status")
 def status():
     return jsonify({"status": "ok", "model": model, "timestamp": time.time()})
 
 
-
 if __name__ == "__main__":
-    # debug=True for local testing only
     app.run(host="0.0.0.0", port=5000, debug=True)
     
 
@@ -199,15 +209,6 @@ if __name__ == "__main__":
 #         yield (b'--frame\r\n'
 #                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
-# # home page
-# @app.route('/')
-# def home():
-#     return render_template('home.html')
-
-# # detect page
-# @app.route('/detect')
-# def detect():
-#     return render_template('detect.html')
 
 # # video feed route
 # @app.route('/video_feed')
