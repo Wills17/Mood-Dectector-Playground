@@ -15,7 +15,7 @@ print("\nModel loaded and running!")
 
 # Warm up model preventing lag
 warmup = model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
-print(warmup, "\nModel warmed up and ready for prediction!")
+print(warmup, "\n\nModel warmed up and ready for prediction!")
 
 # Initialize Flask application
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -32,7 +32,7 @@ engine.setProperty('rate', 160)
 def speak_emotion(emotion):
     def _speak():
         if emotion== "Fear":
-              engine.say(f"You look {emotion.lower()}ful")  # fearful
+            engine.say(f"You look {emotion.lower()}ful")  # fearful
         elif emotion == "Surprise":
             engine.say(f"You look {emotion.lower()}d")    # surprised
         else:
@@ -135,9 +135,3 @@ if __name__ == '__main__':
      app.run(debug=True)
      
 
-
-
-
-     
-"""Next work, only start camera when user taps on start detection in predict page"""
-"""Edit light and dark mode"""
