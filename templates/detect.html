@@ -80,6 +80,7 @@
                                 </div>
                             </h2>
                         </div>
+                        
                         <div class="card-content">
                             <!-- Camera View -->
                             <div class="camera-view" id="cameraView">
@@ -92,22 +93,23 @@
                                                 <path d="M7 3h12a2 2 0 0 1 2 2v4l5-5v10"/>
                                             </svg>
                                             <p class="camera-off-text">Camera is disabled</p>
-                                        </div>
+                                    </div>
 
                                         <div class="camera-on-state hidden" id="cameraOnState">
-                                          
-
-                                            <div class="face-detection-overlay hidden" id="faceOverlay">
-                                                <div class="face-box">
-                                                    <div class="face-box-corner tl"></div>
-                                                    <div class="face-box-corner tr"></div>
-                                                    <div class="face-box-corner bl"></div>
-                                                    <div class="face-box-corner br"></div>
-                                                    <div class="face-label">Face Detected</div>
-                                                </div>
-                                            </div>
+                                          <!-- Live video from Flask -->
+                                          <img id="videoStream" src="" alt="Live video feed" width="100%" style="border-radius: 8px;">
+                                          <div class="face-detection-overlay hidden" id="faceOverlay">
+                                              <div class="face-box">
+                                                  <div class="face-box-corner tl"></div>
+                                                  <div class="face-box-corner tr"></div>
+                                                  <div class="face-box-corner bl"></div>
+                                                  <div class="face-box-corner br"></div>
+                                                  <div class="face-label">Face Detected</div>
+                                              </div>
+                                          </div>
                                         </div>
                                     </div>
+
                                     <div class="camera-controls">
                                         <button class="camera-control-btn" id="toggleCamera">
                                             <svg class="icon camera-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -146,10 +148,10 @@
                         </div>
                         <div class="card-content">
                             <div class="current-emotion">
-                                <div class="emotion-emoji" id="emotionEmoji">😐</div>
-                                <h3 class="emotion-name" id="emotionName">Neutral</h3>
+                                <div class="emotion-emoji" id="emotionEmoji">🤔</div>
+                                <h3 class="emotion-name" id="emotionName">Unknown</h3>
                                 <p class="emotion-speech hidden" id="emotionSpeech">
-                                    🎤 Speaking: "You look neutral"
+                                    🎤 Speaking: "Preparing..."
                                 </p>
                             </div>
                         </div>
