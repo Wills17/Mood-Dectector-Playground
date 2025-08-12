@@ -1,12 +1,12 @@
-// ====== State Variables ======
+// state variables 
 let isDetecting = false;
-let currentEmotion = 'Neutral';
-let detectionHistory = [];
 let cameraEnabled = false;
 let audioEnabled = false;
 let detectionInterval;
+let videoElement;
 
-const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
+
+const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
 const emotionEmojis = {
     'Happy': '😊',
     'Sad': '😢',
@@ -17,7 +17,7 @@ const emotionEmojis = {
     'Disgust': '🤢'
 };
 
-// ====== DOM Elements ======
+// Elements
 const startStopBtn = document.getElementById('startStopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const toggleCameraBtn = document.getElementById('toggleCamera');
@@ -29,10 +29,7 @@ const historyList = document.getElementById('historyList');
 const cameraOffState = document.getElementById('cameraOffState');
 const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
-const videoStream = document.getElementById('videoStream');
 
-
-// Event Listening
 // Start/Stop Detection
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
@@ -41,12 +38,12 @@ startStopBtn.addEventListener('click', () => {
 
 // Reset
 resetBtn.addEventListener('click', () => {
+    stopDetection();
     isDetecting = false;
-    currentEmotion = 'Neutral';
-    detectionHistory = [];
     updateDetectionState();
-    updateCurrentEmotion();
-    updateHistory();
+    emotionEmoji.textContent = "😐";
+    emotionName.textContent = "Neutral";
+    historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
 });
 
 // Toggle Camera
@@ -61,8 +58,6 @@ toggleAudioBtn.addEventListener('click', () => {
     updateAudioState();
 });
 
-// Functions 
-
 function updateDetectionState() {
     if (isDetecting) {
         startStopBtn.classList.add('detecting');
@@ -71,62 +66,85 @@ function updateDetectionState() {
         startStopBtn.querySelector('.btn-text').textContent = 'Stop';
         emotionSpeech.classList.remove('hidden');
 
-        // Start emotion simulation
-        detectionInterval = setInterval(() => {
-            const newEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-            currentEmotion = newEmotion;
-            detectionHistory.unshift(newEmotion);
-            if (detectionHistory.length > 10) detectionHistory.pop();
-
-            updateCurrentEmotion();
-            updateHistory();
-            updateEmotionCards();
-        }, 3000);
-
+        if (cameraEnabled) {
+            startCameraAndDetection();
+        }
     } else {
         startStopBtn.classList.remove('detecting');
         startStopBtn.querySelector('.play-icon').classList.remove('hidden');
         startStopBtn.querySelector('.pause-icon').classList.add('hidden');
         startStopBtn.querySelector('.btn-text').textContent = 'Start';
         emotionSpeech.classList.add('hidden');
+        stopDetection();
+    }
+}
 
-        if (detectionInterval) {
-            clearInterval(detectionInterval);
+function startCameraAndDetection() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            videoElement = document.createElement('video');
+            videoElement.setAttribute('autoplay', true);
+            videoElement.setAttribute('playsinline', true);
+            videoElement.srcObject = stream;
+
+            cameraOnState.innerHTML = ''; // clear old
+            cameraOnState.appendChild(videoElement);
+
+            detectionInterval = setInterval(captureFrame, 1000);
+        })
+        .catch(err => console.error("Camera access error:", err));
+}
+
+function stopDetection() {
+    clearInterval(detectionInterval);
+    if (videoElement && videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+    }
+}
+
+function captureFrame() {
+    if (!videoElement || videoElement.videoWidth === 0) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoElement, 0, 0);
+
+    const imageData = canvas.toDataURL('image/jpeg');
+
+    fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.emotion) {
+            updateUIWithPrediction(data.emotion, data.confidence);
         }
-    }
-
-    updateCameraState();
+    })
+    .catch(err => console.error("Prediction error:", err));
 }
 
-function updateCurrentEmotion() {
-    emotionEmoji.textContent = emotionEmojis[currentEmotion];
-    emotionName.textContent = currentEmotion;
-    emotionSpeech.innerHTML = `🎤 Speaking: "You look ${currentEmotion.toLowerCase()}"`;
+function updateUIWithPrediction(emotion, confidence) {
+    emotionEmoji.textContent = emotionEmojis[emotion];
+    emotionName.textContent = `${emotion} (${confidence}%)`;
+    emotionSpeech.textContent = `🎤 Speaking: "You look ${emotion.toLowerCase()}"`;
 
-    if (isDetecting) {
-        emotionEmoji.classList.add('float');
-    } else {
-        emotionEmoji.classList.remove('float');
-    }
+    const historyItem = `<div class="history-item latest">
+        <span class="history-emoji">${emotionEmojis[emotion]}</span>
+        <span class="history-label">${emotion}</span>
+        <span class="latest-badge">Latest</span>
+    </div>`;
+    historyList.innerHTML = historyItem + historyList.innerHTML;
+
+    updateEmotionCards(emotion);
 }
 
-function updateHistory() {
-    if (detectionHistory.length === 0) {
-        historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
-    } else {
-        historyList.innerHTML = detectionHistory.map((emotion, index) => `
-            <div class="history-item ${index === 0 ? 'latest' : ''}">
-                <span class="history-emoji">${emotionEmojis[emotion]}</span>
-                <span class="history-label">${emotion}</span>
-                ${index === 0 ? '<span class="latest-badge">Latest</span>' : ''}
-            </div>
-        `).join('');
-    }
-}
-
-function updateEmotionCards() {
+function updateEmotionCards(activeEmotion) {
     document.querySelectorAll('.emotion-card').forEach(card => {
-        if (card.dataset.emotion === currentEmotion && isDetecting) {
+        if (card.dataset.emotion === activeEmotion && isDetecting) {
             card.classList.add('active');
         } else {
             card.classList.remove('active');
@@ -141,22 +159,15 @@ function updateCameraState() {
         cameraOffState.classList.add('hidden');
         cameraOnState.classList.remove('hidden');
         faceOverlay.classList.remove('hidden');
-
-        // 🔹 Load Flask video feed
-        if (videoStream.src !== "/video_feed") {
-            videoStream.src = "/video_feed";
-        }
-
+        startCameraAndDetection();
     } else {
         cameraOffState.classList.remove('hidden');
         cameraOnState.classList.add('hidden');
         faceOverlay.classList.add('hidden');
-
-        // 🔹 Stop feed when camera off
-        videoStream.src = "";
+        stopDetection();
     }
 
-    // Update camera button styles
+    // Button icon states
     if (cameraEnabled) {
         toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
         toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
@@ -180,8 +191,6 @@ function updateAudioState() {
     }
 }
 
-// Initialize
-updateCurrentEmotion();
-updateHistory();
+// Init defaults
 updateCameraState();
 updateAudioState();
