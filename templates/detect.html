@@ -1,58 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Emotion Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
+    <title>EmotiSense - AI Emotion Detection</title>
+    <meta name="description" content="Advanced real-time emotion recognition using computer vision and machine learning. Detect and analyze human emotions with precision and speed." />
+    <meta name="author" content="EmotiSense" />
+    <meta name="keywords" content="emotion detection, AI, machine learning, computer vision, facial recognition, real-time analysis" />
 
-  <body>
-    <header class="site-header" role="banner">
-      <div class="container nav">
-        <div class="brand">Empath-Eye</div>
-        <nav aria-label="Primary">
-          <div class="nav-links">
-            <a class="story-link" href="/">Home</a>
-            <a class="story-link" href="/detect" aria-current="page">Detection</a>
-          </div>
-        </nav>
-      </div>
+    <meta property="og:title" content="EmotiSense - AI Emotion Detection" />
+    <meta property="og:description" content="Advanced real-time emotion recognition using computer vision and machine learning. Detect and analyze human emotions with precision and speed." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo-link">
+                <div class="logo-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5c0 .5-.35.9-.8 1.1L9.5 7 8 8.5 6.5 7l-1.7-1.4c-.45-.2-.8-.6-.8-1.1A2.5 2.5 0 0 1 6.5 2c.5 0 1 .15 1.4.4L9.5 3.5l1.6-1.1c.4-.25.9-.4 1.4-.4z"/>
+                        <path d="M6 12a6 6 0 0 1 12 0"/>
+                        <path d="M6 20a6 6 0 0 1 12 0"/>
+                    </svg>
+                </div>
+                <span class="logo-text">EmotiSense</span>
+            </a>
+            
+            <nav class="nav">
+                <a href="index.html" class="nav-link">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    </svg>
+                    Home
+                </a>
+                <a href="detect.html" class="nav-link active">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <circle cx="8" cy="9" r="2"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                    Detect
+                </a>
+            </nav>
+        </div>
     </header>
 
-    <main class="section">
-      <div class="container">
-        <h1>Live Emotion Detection</h1>
-        <p class="muted">Your webcam feed is analyzed in real-time.</p>
+    <div class="page-gradient">
+        <div class="container detect-container">
+            <div class="detect-grid">
+                <!-- Camera and Controls -->
+                <div class="detect-main">
+                    <!-- Live Detection Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <span>Live Emotion Detection</span>
+                                <div class="detection-controls">
+                                    <button class="btn btn-primary detection-btn" id="startStopBtn">
+                                        <svg class="icon play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="5,3 19,12 5,21"/>
+                                        </svg>
+                                        <svg class="icon pause-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="6" y="4" width="4" height="16"/>
+                                            <rect x="14" y="4" width="4" height="16"/>
+                                        </svg>
+                                        <span class="btn-text">Start</span>
+                                    </button>
+                                    <button class="btn btn-outline" id="resetBtn">
+                                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                                            <path d="M21 3v5h-5"/>
+                                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                                            <path d="M8 16H3v5"/>
+                                        </svg>
+                                        Reset
+                                    </button>
+                                </div>
+                            </h2>
+                        </div>
+                        <div class="card-content">
+                            <!-- Camera View -->
+                            <div class="camera-view" id="cameraView">
+                                <div class="camera-container">
+                                    <div class="camera-feed">
+                                        <div class="camera-off-state" id="cameraOffState">
+                                            <svg class="camera-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="1" y1="1" x2="23" y2="23"/>
+                                                <path d="m9 9-5 5v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4z"/>
+                                                <path d="M7 3h12a2 2 0 0 1 2 2v4l5-5v10"/>
+                                            </svg>
+                                            <p class="camera-off-text">Camera is disabled</p>
+                                        </div>
+                                        <div class="camera-on-state hidden" id="cameraOnState">
+                                            <div class="simulated-feed"></div>
+                                            <div class="face-detection-overlay hidden" id="faceOverlay">
+                                                <div class="face-box">
+                                                    <div class="face-box-corner tl"></div>
+                                                    <div class="face-box-corner tr"></div>
+                                                    <div class="face-box-corner bl"></div>
+                                                    <div class="face-box-corner br"></div>
+                                                    <div class="face-label">Face Detected</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="camera-controls">
+                                        <button class="camera-control-btn" id="toggleCamera">
+                                            <svg class="icon camera-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                                <circle cx="12" cy="13" r="4"/>
+                                            </svg>
+                                            <svg class="icon camera-off-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="1" y1="1" x2="23" y2="23"/>
+                                                <path d="m9 9-5 5v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4z"/>
+                                                <path d="M7 3h12a2 2 0 0 1 2 2v4l5-5v10"/>
+                                            </svg>
+                                        </button>
+                                        <button class="camera-control-btn" id="toggleAudio">
+                                            <svg class="icon audio-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                                <line x1="12" x2="12" y1="19" y2="22"/>
+                                            </svg>
+                                            <svg class="icon audio-off-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="2" y1="2" x2="22" y2="22"/>
+                                                <path d="m7 7-.16.09A3 3 0 0 0 6 9.5v2.5a7 7 0 0 0 13.16 3.77"/>
+                                                <path d="m15 9.34V5a3 3 0 0 0-5.68-1.33"/>
+                                                <line x1="12" x2="12" y1="19" y2="22"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        <div class="card frame" style="height: auto;">
-          <img src="{{ url_for('video_feed') }}" alt="Video feed" style="width: 50%; border-radius: 10px;">
-        </div>
+                    <!-- Current Detection Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Current Detection</h2>
+                        </div>
+                        <div class="card-content">
+                            <div class="current-emotion">
+                                <div class="emotion-emoji" id="emotionEmoji">😐</div>
+                                <h3 class="emotion-name" id="emotionName">Neutral</h3>
+                                <p class="emotion-speech hidden" id="emotionSpeech">
+                                    🎤 Speaking: "You look neutral"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <input type="checkbox" id="theme-toggle" class="sr-only" aria-label="Toggle dark mode" />
-        <label for="theme-toggle" class="theme-switch" aria-live="polite">
-          <span class="sun">Light</span>
-          <span class="knob" aria-hidden="true"></span>
-          <span class="moon">Dark</span>
-        </label>
+                <!-- Emotion Analysis Sidebar -->
+                <div class="detect-sidebar">
+                    <!-- Emotion Analysis -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Emotion Analysis</h2>
+                        </div>
+                        <div class="card-content">
+                            <div class="emotion-cards">
+                                <div class="emotion-card" data-emotion="Happy">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😊</span>
+                                        <span class="emotion-label">Happy</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 85.2%"></div>
+                                    </div>
+                                    <span class="confidence-value">85.2%</span>
+                                </div>
 
-        <div class="page">
-          <main id="main" role="main" class="main">
-            <h1 class="sr-only">Empath‑Eye Detection Controls</h1>
-            <div class="controls">
-              <button class="btn btn-primary">Start camera</button>
-              <button class="btn btn-outline">Stop camera</button>
+                                <div class="emotion-card" data-emotion="Neutral">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😐</span>
+                                        <span class="emotion-label">Neutral</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 12.4%"></div>
+                                    </div>
+                                    <span class="confidence-value">12.4%</span>
+                                </div>
+
+                                <div class="emotion-card" data-emotion="Surprise">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😲</span>
+                                        <span class="emotion-label">Surprise</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 2.1%"></div>
+                                    </div>
+                                    <span class="confidence-value">2.1%</span>
+                                </div>
+
+                                <div class="emotion-card" data-emotion="Sad">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😢</span>
+                                        <span class="emotion-label">Sad</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 0.2%"></div>
+                                    </div>
+                                    <span class="confidence-value">0.2%</span>
+                                </div>
+
+                                <div class="emotion-card" data-emotion="Angry">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😠</span>
+                                        <span class="emotion-label">Angry</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 0.1%"></div>
+                                    </div>
+                                    <span class="confidence-value">0.1%</span>
+                                </div>
+
+                                <div class="emotion-card" data-emotion="Fear">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">😨</span>
+                                        <span class="emotion-label">Fear</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="confidence-value">0.0%</span>
+                                </div>
+
+                                <div class="emotion-card" data-emotion="Disgust">
+                                    <div class="emotion-info">
+                                        <span class="emotion-icon">🤢</span>
+                                        <span class="emotion-label">Disgust</span>
+                                    </div>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="confidence-value">0.0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detection History -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Recent Detections</h2>
+                        </div>
+                        <div class="card-content">
+                            <div class="history-list" id="historyList">
+                                <div class="empty-history">
+                                    <p>No detections yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </div>
-        <div style="margin-top: 1.5rem;">
-          <a class="btn btn-outline hover-scale" href="/">← Back to Home</a>
-        </div>
-      </div>
-    </main>
+    </div>
 
-    <footer class="site-footer section">
-      <div class="container" style="text-align: center;">Empath-Eye — Live Emotion Detection</div>
-    </footer>
-  </body>
-</html>
+    <script>
+        // Simple JavaScript for interactive features
+        let isDetecting = false;
+        let currentEmotion = 'Neutral';
+        let detectionHistory = [];
+        let cameraEnabled = false;
+        let audioEnabled = false;
+        let detectionInterval;
+
+        const emotions = ['Happy', 'Neutral', 'Surprise', 'Sad'];
+        const emotionEmojis = {
+            'Happy': '😊',
+            'Sad': '😢',
+            'Angry': '😠',
+            'Fear': '😨',
+            'Surprise': '😲',
+            'Neutral': '😐',
+            'Disgust': '🤢'
+        };
+
+        // Elements
+        const startStopBtn = document.getElementById('startStopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const toggleCameraBtn = document.getElementById('toggleCamera');
+        const toggleAudioBtn = document.getElementById('toggleAudio');
+        const emotionEmoji = document.getElementById('emotionEmoji');
+        const emotionName = document.getElementById('emotionName');
+        const emotionSpeech = document.getElementById('emotionSpeech');
+        const historyList = document.getElementById('historyList');
+        const cameraOffState = document.getElementById('cameraOffState');
+        const cameraOnState = document.getElementById('cameraOnState');
+        const faceOverlay = document.getElementById('faceOverlay');
+
+        // Start/Stop Detection
+        startStopBtn.addEventListener('click', () => {
+            isDetecting = !isDetecting;
+            updateDetectionState();
+        });
+
+        // Reset
+        resetBtn.addEventListener('click', () => {
+            isDetecting = false;
+            currentEmotion = 'Neutral';
+            detectionHistory = [];
+            updateDetectionState();
+            updateCurrentEmotion();
+            updateHistory();
+        });
+
+        // Toggle Camera
+        toggleCameraBtn.addEventListener('click', () => {
+            cameraEnabled = !cameraEnabled;
+            updateCameraState();
+        });
+
+        // Toggle Audio
+        toggleAudioBtn.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            updateAudioState();
+        });
+
+        function updateDetectionState() {
+            if (isDetecting) {
+                startStopBtn.classList.add('detecting');
+                startStopBtn.querySelector('.play-icon').classList.add('hidden');
+                startStopBtn.querySelector('.pause-icon').classList.remove('hidden');
+                startStopBtn.querySelector('.btn-text').textContent = 'Stop';
+                emotionSpeech.classList.remove('hidden');
+                
+                // Start emotion simulation
+                detectionInterval = setInterval(() => {
+                    const newEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+                    currentEmotion = newEmotion;
+                    detectionHistory.unshift(newEmotion);
+                    if (detectionHistory.length > 10) detectionHistory.pop();
+                    
+                    updateCurrentEmotion();
+                    updateHistory();
+                    updateEmotionCards();
+                }, 3000);
+            } else {
+                startStopBtn.classList.remove('detecting');
+                startStopBtn.querySelector('.play-icon').classList.remove('hidden');
+                startStopBtn.querySelector('.pause-icon').classList.add('hidden');
+                startStopBtn.querySelector('.btn-text').textContent = 'Start';
+                emotionSpeech.classList.add('hidden');
+                
+                if (detectionInterval) {
+                    clearInterval(detectionInterval);
+                }
+            }
+            
+            updateCameraState();
+        }
+
+        function updateCurrentEmotion() {
+            emotionEmoji.textContent = emotionEmojis[currentEmotion];
+            emotionName.textContent = currentEmotion;
+            emotionSpeech.innerHTML = `🎤 Speaking: "You look ${currentEmotion.toLowerCase()}"`;
+            
+            if (isDetecting) {
+                emotionEmoji.classList.add('float');
+            } else {
+                emotionEmoji.classList.remove('float');
+            }
+        }
+
+        function updateHistory() {
+            if (detectionHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
+            } else {
+                historyList.innerHTML = detectionHistory.map((emotion, index) => `
+                    <div class="history-item ${index === 0 ? 'latest' : ''}">
+                        <span class="history-emoji">${emotionEmojis[emotion]}</span>
+                        <span class="history-label">${emotion}</span>
+                        ${index === 0 ? '<span class="latest-badge">Latest</span>' : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        function updateEmotionCards() {
+            document.querySelectorAll('.emotion-card').forEach(card => {
+                if (card.dataset.emotion === currentEmotion && isDetecting) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        function updateCameraState() {
+            const shouldShowCamera = cameraEnabled && isDetecting;
+            
+            if (shouldShowCamera) {
+                cameraOffState.classList.add('hidden');
+                cameraOnState.classList.remove('hidden');
+                faceOverlay.classList.remove('hidden');
+            } else {
+                cameraOffState.classList.remove('hidden');
+                cameraOnState.classList.add('hidden');
+                faceOverlay.classList.add('hidden');
+            }
+            
+            // Update camera button
+            if (cameraEnabled) {
+                toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
+                toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
+                toggleCameraBtn.classList.add('active');
+            } else {
+                toggleCameraBtn.querySelector('.camera-on-icon').classList.add('hidden');
+                toggleCameraBtn.querySelector('.camera-off-icon').classList.remove('hidden');
+                toggleCameraBtn.classList.remove('active');
+            }
+        }
+
+        function updateAudioState() {
+            if (audioEnabled) {
+                toggleAudioBtn.querySelector('.audio-on-icon').classList.remove('hidden');
+                toggleAudioBtn.querySelector('.audio-off-icon').classList.add('hidden');
+                toggleAudioBtn.classList.add('active');
+            } else {
+                toggleAudioBtn.querySelector('.audio-on-icon').classList.add('hidden');
+                toggleAudioBtn.querySelector('.audio-off-icon').classList.remove('hidden');
+                toggleAudioBtn.classList.remove('active');
+            }
+        }
+
+        // Initialize
+        updateCurrentEmotion();
+        updateHistory();
+        updateCameraState();
+        updateAudioState();
+    </script>
+</body>
