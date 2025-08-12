@@ -12,6 +12,7 @@
     <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
 
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -92,11 +93,9 @@
                                             </svg>
                                             <p class="camera-off-text">Camera is disabled</p>
                                         </div>
-                                        
+
                                         <div class="camera-on-state hidden" id="cameraOnState">
-                                          <img src="{{ url_for('video_feed') }}" 
-                                                alt="Live webcam feed" 
-                                                id="video-stream">
+                                          
 
                                             <div class="face-detection-overlay hidden" id="faceOverlay">
                                                 <div class="face-box">

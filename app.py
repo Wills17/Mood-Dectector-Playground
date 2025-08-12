@@ -86,6 +86,7 @@ def predict_frame():
      - JSON body with {"image": "data:image/jpeg;base64,...."}
     Returns JSON: { emotion, confidence, probs }
     """
+    
     try:
         # file upload via form
         if "frame" in request.files:
