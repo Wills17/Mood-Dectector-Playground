@@ -26,22 +26,22 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 # Labels for emotions
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
 
-# Initialize TTS
-engine = pyttsx3.init()
-engine.setProperty('rate', 160)
+# # Initialize TTS
+# engine = pyttsx3.init()
+# engine.setProperty('rate', 160)
 
-# Function to run speech in background
-def speak_emotion(emotion):
-    def _speak():
-        if emotion== "Fear":
-            engine.say(f"You look {emotion.lower()}ful")  # fearful
-        elif emotion == "Surprise":
-            engine.say(f"You look {emotion.lower()}d")    # surprised
-        else:
-            engine.say(f"You look {emotion.lower()}")
-        engine.runAndWait()
+# # Function to run speech in background
+# def speak_emotion(emotion):
+#     def _speak():
+#         if emotion== "Fear":
+#             engine.say(f"You look {emotion.lower()}ful")  # fearful
+#         elif emotion == "Surprise":
+#             engine.say(f"You look {emotion.lower()}d")    # surprised
+#         else:
+#             engine.say(f"You look {emotion.lower()}")
+#         engine.runAndWait()
         
-    threading.Thread(target=_speak, daemon=True).start()
+#     threading.Thread(target=_speak, daemon=True).start()
 
 
 # Preprocess PIL image
