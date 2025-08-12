@@ -4,26 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EmotiSense - AI Emotion Detection</title>
-    <meta name="description" content="Advanced real-time emotion recognition using computer vision and machine learning. Detect and analyze human emotions with precision and speed." />
+    <meta name="description" content="Advanced real-time emotion recognition using computer vision and machine learning. Detect and analyze human emotions with precision and speed." >
     <meta name="author" content="EmotiSense" />
-    <meta name="keywords" content="emotion detection, AI, machine learning, computer vision, facial recognition, real-time analysis" />
-
-    <meta property="og:title" content="EmotiSense - AI Emotion Detection" />
-    <meta property="og:description" content="Advanced real-time emotion recognition using computer vision and machine learning. Detect and analyze human emotions with precision and speed." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="keywords" content="emotion detection, AI, machine learning, computer vision, facial recognition, real-time analysis">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <a href="index.html" class="logo-link">
+            <a href="/" class="logo-link">
                 <div class="logo-icon">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5c0 .5-.35.9-.8 1.1L9.5 7 8 8.5 6.5 7l-1.7-1.4c-.45-.2-.8-.6-.8-1.1A2.5 2.5 0 0 1 6.5 2c.5 0 1 .15 1.4.4L9.5 3.5l1.6-1.1c.4-.25.9-.4 1.4-.4z"/>
@@ -35,7 +28,7 @@
             </a>
             
             <nav class="nav">
-                <a href="index.html" class="nav-link">
+                <a href="/" class="nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     </svg>
@@ -267,178 +260,5 @@
         </div>
     </div>
 
-    <script>
-        // Simple JavaScript for interactive features
-        let isDetecting = false;
-        let currentEmotion = 'Neutral';
-        let detectionHistory = [];
-        let cameraEnabled = false;
-        let audioEnabled = false;
-        let detectionInterval;
-
-        const emotions = ['Happy', 'Neutral', 'Surprise', 'Sad'];
-        const emotionEmojis = {
-            'Happy': '😊',
-            'Sad': '😢',
-            'Angry': '😠',
-            'Fear': '😨',
-            'Surprise': '😲',
-            'Neutral': '😐',
-            'Disgust': '🤢'
-        };
-
-        // Elements
-        const startStopBtn = document.getElementById('startStopBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const toggleCameraBtn = document.getElementById('toggleCamera');
-        const toggleAudioBtn = document.getElementById('toggleAudio');
-        const emotionEmoji = document.getElementById('emotionEmoji');
-        const emotionName = document.getElementById('emotionName');
-        const emotionSpeech = document.getElementById('emotionSpeech');
-        const historyList = document.getElementById('historyList');
-        const cameraOffState = document.getElementById('cameraOffState');
-        const cameraOnState = document.getElementById('cameraOnState');
-        const faceOverlay = document.getElementById('faceOverlay');
-
-        // Start/Stop Detection
-        startStopBtn.addEventListener('click', () => {
-            isDetecting = !isDetecting;
-            updateDetectionState();
-        });
-
-        // Reset
-        resetBtn.addEventListener('click', () => {
-            isDetecting = false;
-            currentEmotion = 'Neutral';
-            detectionHistory = [];
-            updateDetectionState();
-            updateCurrentEmotion();
-            updateHistory();
-        });
-
-        // Toggle Camera
-        toggleCameraBtn.addEventListener('click', () => {
-            cameraEnabled = !cameraEnabled;
-            updateCameraState();
-        });
-
-        // Toggle Audio
-        toggleAudioBtn.addEventListener('click', () => {
-            audioEnabled = !audioEnabled;
-            updateAudioState();
-        });
-
-        function updateDetectionState() {
-            if (isDetecting) {
-                startStopBtn.classList.add('detecting');
-                startStopBtn.querySelector('.play-icon').classList.add('hidden');
-                startStopBtn.querySelector('.pause-icon').classList.remove('hidden');
-                startStopBtn.querySelector('.btn-text').textContent = 'Stop';
-                emotionSpeech.classList.remove('hidden');
-                
-                // Start emotion simulation
-                detectionInterval = setInterval(() => {
-                    const newEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-                    currentEmotion = newEmotion;
-                    detectionHistory.unshift(newEmotion);
-                    if (detectionHistory.length > 10) detectionHistory.pop();
-                    
-                    updateCurrentEmotion();
-                    updateHistory();
-                    updateEmotionCards();
-                }, 3000);
-            } else {
-                startStopBtn.classList.remove('detecting');
-                startStopBtn.querySelector('.play-icon').classList.remove('hidden');
-                startStopBtn.querySelector('.pause-icon').classList.add('hidden');
-                startStopBtn.querySelector('.btn-text').textContent = 'Start';
-                emotionSpeech.classList.add('hidden');
-                
-                if (detectionInterval) {
-                    clearInterval(detectionInterval);
-                }
-            }
-            
-            updateCameraState();
-        }
-
-        function updateCurrentEmotion() {
-            emotionEmoji.textContent = emotionEmojis[currentEmotion];
-            emotionName.textContent = currentEmotion;
-            emotionSpeech.innerHTML = `🎤 Speaking: "You look ${currentEmotion.toLowerCase()}"`;
-            
-            if (isDetecting) {
-                emotionEmoji.classList.add('float');
-            } else {
-                emotionEmoji.classList.remove('float');
-            }
-        }
-
-        function updateHistory() {
-            if (detectionHistory.length === 0) {
-                historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
-            } else {
-                historyList.innerHTML = detectionHistory.map((emotion, index) => `
-                    <div class="history-item ${index === 0 ? 'latest' : ''}">
-                        <span class="history-emoji">${emotionEmojis[emotion]}</span>
-                        <span class="history-label">${emotion}</span>
-                        ${index === 0 ? '<span class="latest-badge">Latest</span>' : ''}
-                    </div>
-                `).join('');
-            }
-        }
-
-        function updateEmotionCards() {
-            document.querySelectorAll('.emotion-card').forEach(card => {
-                if (card.dataset.emotion === currentEmotion && isDetecting) {
-                    card.classList.add('active');
-                } else {
-                    card.classList.remove('active');
-                }
-            });
-        }
-
-        function updateCameraState() {
-            const shouldShowCamera = cameraEnabled && isDetecting;
-            
-            if (shouldShowCamera) {
-                cameraOffState.classList.add('hidden');
-                cameraOnState.classList.remove('hidden');
-                faceOverlay.classList.remove('hidden');
-            } else {
-                cameraOffState.classList.remove('hidden');
-                cameraOnState.classList.add('hidden');
-                faceOverlay.classList.add('hidden');
-            }
-            
-            // Update camera button
-            if (cameraEnabled) {
-                toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
-                toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
-                toggleCameraBtn.classList.add('active');
-            } else {
-                toggleCameraBtn.querySelector('.camera-on-icon').classList.add('hidden');
-                toggleCameraBtn.querySelector('.camera-off-icon').classList.remove('hidden');
-                toggleCameraBtn.classList.remove('active');
-            }
-        }
-
-        function updateAudioState() {
-            if (audioEnabled) {
-                toggleAudioBtn.querySelector('.audio-on-icon').classList.remove('hidden');
-                toggleAudioBtn.querySelector('.audio-off-icon').classList.add('hidden');
-                toggleAudioBtn.classList.add('active');
-            } else {
-                toggleAudioBtn.querySelector('.audio-on-icon').classList.add('hidden');
-                toggleAudioBtn.querySelector('.audio-off-icon').classList.remove('hidden');
-                toggleAudioBtn.classList.remove('active');
-            }
-        }
-
-        // Initialize
-        updateCurrentEmotion();
-        updateHistory();
-        updateCameraState();
-        updateAudioState();
-    </script>
 </body>
+</html>
