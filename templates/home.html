@@ -13,11 +13,12 @@
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
         <div class="container">
-            <a href="index.html" class="logo-link">
+            <a href="/" class="logo-link">
                 <div class="logo-icon">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5c0 .5-.35.9-.8 1.1L9.5 7 8 8.5 6.5 7l-1.7-1.4c-.45-.2-.8-.6-.8-1.1A2.5 2.5 0 0 1 6.5 2c.5 0 1 .15 1.4.4L9.5 3.5l1.6-1.1c.4-.25.9-.4 1.4-.4z"/>
@@ -29,12 +30,13 @@
             </a>
             
             <nav class="nav">
-                <a href="index.html" class="nav-link active">
+                <a href="/" class="nav-link active">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                     </svg>
                     Home
                 </a>
+
                 <a href="/detect" class="nav-link">
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
@@ -48,7 +50,8 @@
     </header>
 
     <div class="page-gradient">
-        <!-- Hero Section -->
+      
+        <!-- Hero Section (Hero) -->
         <section class="hero-section">
             <div class="container">
                 <div class="hero-grid">
@@ -65,7 +68,7 @@
                         </div>
                         
                         <div class="hero-buttons">
-                            <a href="detect.html" class="btn btn-primary btn-lg">
+                            <a href="/detect" class="btn btn-primary btn-lg">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
                                     <circle cx="8" cy="9" r="2"/>
