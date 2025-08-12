@@ -9,7 +9,7 @@
     <meta name="keywords" content="emotion detection, AI, machine learning, computer vision, facial recognition, real-time analysis">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
 
 </head>
 <body>
@@ -92,8 +92,12 @@
                                             </svg>
                                             <p class="camera-off-text">Camera is disabled</p>
                                         </div>
+                                        
                                         <div class="camera-on-state hidden" id="cameraOnState">
-                                            <div class="simulated-feed"></div>
+                                          <img src="{{ url_for('video_feed') }}" 
+                                                alt="Live webcam feed" 
+                                                id="video-stream">
+
                                             <div class="face-detection-overlay hidden" id="faceOverlay">
                                                 <div class="face-box">
                                                     <div class="face-box-corner tl"></div>
