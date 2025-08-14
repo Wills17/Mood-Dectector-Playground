@@ -59,19 +59,24 @@ def detect():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get image from request
+        # Get image continously from request
         data = request.json['image']
         image_data = base64.b64decode(data.split(',')[1])
-        np_arr = np.frombuffer(image_data, np.uint8)
-        frame = cv.imdecode(np_arr, cv.IMREAD_COLOR)
+        np_array = np.frombuffer(image_data, np.uint8)
+        frame = cv.imdecode(np_array, cv.IMREAD_COLOR)
 
         # Convert to grayscale
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # Detect face
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(48, 48))
+        
         if len(faces) == 0:
-            return jsonify({"emotion": None, "confidence": 0})
+            # If no face, no predictions gotten
+            _, buffer = cv.imencode('.jpg', frame)
+            frame_base64 = base64.b64encode(buffer).decode('utf-8')
+            return jsonify({"emotion": None, "confidence": 0, "frame": f"data:image/jpeg;base64,{frame_base64}"})
+
 
         # Use largest face
         x, y, w, h = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
@@ -85,14 +90,20 @@ def predict():
         emotion_index = int(np.argmax(prediction))
         predicted_emotion = emotion_labels[emotion_index]
         confidence = float(np.max(prediction) * 100)
-
-        # Speak
+    
+        
+        # Speak emotion
         speak_emotion(predicted_emotion)
+        
+        # Encode frame
+        _, buffer = cv.imencode('.jpg', frame)
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
 
         return jsonify({
             "emotion": predicted_emotion,
-            "confidence": round(confidence, 1)
-        })
+            "confidence": round(confidence, 1),
+            "frame": f"data:image/jpeg;base64,{frame_base64}"
+            })
 
     except Exception as e:
         return jsonify({"error": str(e)})
