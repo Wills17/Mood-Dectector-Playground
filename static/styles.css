@@ -662,14 +662,14 @@ body {
     margin: 0;
 }
 
-.camera-on-state {
-    width: 100%;
-    height: 100%;
+.camera-on-state { 
+    width: 100%; 
+    height: 100%; 
     position: relative;
 }
 
 .face-detection-overlay {
-    position: relative;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -780,7 +780,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover; /* fills box without squishing */
-    border-radius: 10px;
+    border-radius: 100px;
     display: block;
 }
 
