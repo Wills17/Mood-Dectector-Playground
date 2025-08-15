@@ -632,8 +632,8 @@ body {
 
 .camera-feed {
     position: relative;
-    width: auto;
-    aspect-ratio: auto; /* keeps webcam-like proportion */
+    width: 100%;
+    height: 100%;
     background: #000;
     overflow: hidden;
     border-radius: 10px;
@@ -643,19 +643,22 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: auto;
+    justify-content: center; /* center vertically */
+    width: 100%;
+    height: 100%; /* fill the container */
     color: hsl(var(--muted-foreground));
+    text-align: center;
 }
+
 
 .camera-off-icon {
     width: 3rem;
     height: 3rem;
-    margin-bottom: 1rem;
+    position: relative;
 }
 
 .camera-off-text {
-    font-size: 1.125rem;
+    font-size: 1.2rem;
     margin: 0;
 }
 
