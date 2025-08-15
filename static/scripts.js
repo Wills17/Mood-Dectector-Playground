@@ -5,7 +5,6 @@ let audioEnabled = false;
 let detectionInterval;
 let videoElement;
 
-
 const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
 const emotionEmojis = {
     'Happy': '😊',
@@ -44,6 +43,11 @@ resetBtn.addEventListener('click', () => {
     emotionEmoji.textContent = "😐";
     emotionName.textContent = "Neutral";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
+
+    // Clear all bars on reset
+    document.querySelectorAll('.confidence-fill').forEach(bar => {
+        bar.style.width = '0%';
+    });
 });
 
 // Toggle Camera
@@ -144,10 +148,14 @@ function updateUIWithPrediction(emotion, confidence) {
 
 function updateEmotionCards(activeEmotion) {
     document.querySelectorAll('.emotion-card').forEach(card => {
+        const fillBar = card.querySelector('.confidence-fill');
+
         if (card.dataset.emotion === activeEmotion && isDetecting) {
             card.classList.add('active');
+            fillBar.style.width = '100%'; // full bar for detected emotion
         } else {
             card.classList.remove('active');
+            fillBar.style.width = '0%'; // empty otherwise
         }
     });
 }
@@ -191,6 +199,6 @@ function updateAudioState() {
     }
 }
 
-// Init defaults
+// Initialize defaults
 updateCameraState();
 updateAudioState();
