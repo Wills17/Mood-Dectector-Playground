@@ -136,6 +136,9 @@ function updateUIWithPrediction(emotion, confidence) {
     emotionName.textContent = `${emotion} (${confidence}%)`;
     emotionSpeech.textContent = `🎤 Spoke: "You look ${emotion.toLowerCase()}"`;
 
+    // Remove "Latest" badge from all existing items
+    historyList.querySelectorAll('.latest-badge').forEach(badge => badge.remove());
+
     const historyItem = 
     `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
