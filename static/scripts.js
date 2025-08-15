@@ -126,10 +126,18 @@ function updateUIWithPrediction(emotion, confidence) {
     // Update emoji & name
     emotionEmoji.textContent = emotionEmojis[emotion];
     emotionName.textContent = `${emotion} (${confidence}%)`;
-    emotionSpeech.textContent = `🎤 You look ${emotion.toLowerCase()}`;
 
-    // Browser TTS
-    const utterance = new SpeechSynthesisUtterance(`You look ${emotion.toLowerCase()}`);
+    // Browser TTS with Flask-like grammar
+    let speechText;
+    if (emotion === "Fear") {
+        speechText = `You look fearful`;
+    } else if (emotion === "Surprise") {
+        speechText = `You look surprised`;
+    } else {
+        speechText = `You look ${emotion.toLowerCase()}`;
+    }
+    emotionSpeech.textContent = `🎤 ${speechText}`;
+    const utterance = new SpeechSynthesisUtterance(speechText);
     utterance.rate = 1;
     utterance.pitch = 1;
     speechSynthesis.speak(utterance);
@@ -200,5 +208,5 @@ function updateCameraState() {
     }
 }
 
-// Init defaults
+// Initialize defaults
 updateCameraState();
