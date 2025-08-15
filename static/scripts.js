@@ -1,8 +1,9 @@
-// state variables 
+// State Variables
 let isDetecting = false;
 let cameraEnabled = false;
 let detectionInterval;
 let videoElement;
+let lastSpokenEmotion = null;
 
 const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
@@ -14,6 +15,7 @@ const emotionEmojis = {
     'Neutral': '😐',
     'Disgust': '🤢'
 };
+
 
 // Elements
 const startStopBtn = document.getElementById('startStopBtn');
@@ -27,30 +29,31 @@ const cameraOffState = document.getElementById('cameraOffState');
 const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
 
-// Start/Stop Detection
+
+// Event Listeners
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
     updateDetectionState();
 });
 
-// Reset
 resetBtn.addEventListener('click', () => {
     stopDetection();
     isDetecting = false;
     updateDetectionState();
     emotionEmoji.textContent = "😐";
     emotionName.textContent = "Neutral";
-    emotionSpeech.textContent = "";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
-    resetConfidenceBars();
+    lastSpokenEmotion = null;
 });
 
-// Toggle Camera
 toggleCameraBtn.addEventListener('click', () => {
     cameraEnabled = !cameraEnabled;
     updateCameraState();
 });
 
+
+
+// State Handlers
 function updateDetectionState() {
     if (isDetecting) {
         startStopBtn.classList.add('detecting');
@@ -72,6 +75,35 @@ function updateDetectionState() {
     }
 }
 
+function updateCameraState() {
+    const shouldShowCamera = cameraEnabled && isDetecting;
+
+    if (shouldShowCamera) {
+        cameraOffState.classList.add('hidden');
+        cameraOnState.classList.remove('hidden');
+        faceOverlay.classList.remove('hidden');
+        startCameraAndDetection();
+    } else {
+        cameraOffState.classList.remove('hidden');
+        cameraOnState.classList.add('hidden');
+        faceOverlay.classList.add('hidden');
+        stopDetection();
+    }
+
+    // Button icon states
+    if (cameraEnabled) {
+        toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
+        toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
+        toggleCameraBtn.classList.add('active');
+    } else {
+        toggleCameraBtn.querySelector('.camera-on-icon').classList.add('hidden');
+        toggleCameraBtn.querySelector('.camera-off-icon').classList.remove('hidden');
+        toggleCameraBtn.classList.remove('active');
+    }
+}
+
+
+// Camera + Detection
 function startCameraAndDetection() {
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
@@ -115,34 +147,37 @@ function captureFrame() {
     .then(data => {
         if (data.emotion) {
             updateUIWithPrediction(data.emotion, data.confidence);
-        } else {
-            resetConfidenceBars();
         }
     })
     .catch(err => console.error("Prediction error:", err));
 }
 
+
+// UI Updates
 function updateUIWithPrediction(emotion, confidence) {
-    // Update emoji & name
     emotionEmoji.textContent = emotionEmojis[emotion];
     emotionName.textContent = `${emotion} (${confidence}%)`;
 
-    // Browser TTS with Flask-like grammar
-    let speechText;
-    if (emotion === "Fear") {
-        speechText = `You look fearful`;
-    } else if (emotion === "Surprise") {
-        speechText = `You look surprised`;
-    } else {
-        speechText = `You look ${emotion.toLowerCase()}`;
-    }
-    emotionSpeech.textContent = `🎤 ${speechText}`;
-    const utterance = new SpeechSynthesisUtterance(speechText);
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    speechSynthesis.speak(utterance);
+    // Speak only if emotion changed
+    if (emotion !== lastSpokenEmotion) {
+        let speechText;
+        if (emotion === "Fear") {
+            speechText = `You look fearful`;
+        } else if (emotion === "Surprise") {
+            speechText = `You look surprised`;
+        } else {
+            speechText = `You look ${emotion.toLowerCase()}`;
+        }
+        emotionSpeech.textContent = `🎤 ${speechText}`;
+        const utterance = new SpeechSynthesisUtterance(speechText);
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        speechSynthesis.speak(utterance);
 
-    // Update recent predictions list (only keep last 5)
+        lastSpokenEmotion = emotion;
+    }
+
+    // Update recent predictions (max 5)
     const historyItem = `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
         <span class="history-label">${emotion}</span>
@@ -155,58 +190,29 @@ function updateUIWithPrediction(emotion, confidence) {
 
     const items = tempDiv.querySelectorAll('.history-item');
     const limitedHistory = Array.from(items).slice(0, 5).map(item => item.outerHTML).join('');
-
     historyList.innerHTML = limitedHistory;
 
-    // Update emotion cards & confidence bar
+    // Update emotion cards with confidence
     updateEmotionCards(emotion, confidence);
 }
 
 function updateEmotionCards(activeEmotion, confidence) {
     document.querySelectorAll('.emotion-card').forEach(card => {
-        const barFill = card.querySelector('.confidence-fill');
+        const bar = card.querySelector('.confidence-fill');
+        const valueLabel = card.querySelector('.confidence-value');
+
         if (card.dataset.emotion === activeEmotion && isDetecting) {
             card.classList.add('active');
-            if (barFill) barFill.style.width = `${confidence}%`;
+            if (bar) bar.style.width = `${confidence}%`;
+            if (valueLabel) valueLabel.textContent = `${confidence}%`;
         } else {
             card.classList.remove('active');
-            if (barFill) barFill.style.width = '0%';
+            if (bar) bar.style.width = `1%`;
+            if (valueLabel) valueLabel.textContent = `1%`;
         }
     });
 }
 
-function resetConfidenceBars() {
-    document.querySelectorAll('.confidence-fill').forEach(bar => {
-        bar.style.width = '0%';
-    });
-}
 
-function updateCameraState() {
-    const shouldShowCamera = cameraEnabled && isDetecting;
-
-    if (shouldShowCamera) {
-        cameraOffState.classList.add('hidden');
-        cameraOnState.classList.remove('hidden');
-        faceOverlay.classList.remove('hidden');
-        startCameraAndDetection();
-    } else {
-        cameraOffState.classList.remove('hidden');
-        cameraOnState.classList.add('hidden');
-        faceOverlay.classList.add('hidden');
-        stopDetection();
-    }
-
-    // Button icon states
-    if (cameraEnabled) {
-        toggleCameraBtn.querySelector('.camera-on-icon').classList.remove('hidden');
-        toggleCameraBtn.querySelector('.camera-off-icon').classList.add('hidden');
-        toggleCameraBtn.classList.add('active');
-    } else {
-        toggleCameraBtn.querySelector('.camera-on-icon').classList.add('hidden');
-        toggleCameraBtn.querySelector('.camera-off-icon').classList.remove('hidden');
-        toggleCameraBtn.classList.remove('active');
-    }
-}
-
-// Initialize defaults
+// Initialise Defaults
 updateCameraState();
