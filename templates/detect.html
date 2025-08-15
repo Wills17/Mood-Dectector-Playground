@@ -96,15 +96,16 @@
                                     </div>
 
                                         <div class="camera-on-state hidden" id="cameraOnState">
+                                            
                                           <!-- Live video from Flask -->
-                                          <img id="videoStream" src="" alt="Live video feed" width="100%" style="border-radius: 8px;">
+                                          <img id="videoStream" src="" alt="Live video feed" width="100%" height="100%" style="border-radius: 10px;">
                                           <div class="face-detection-overlay hidden" id="faceOverlay">
                                               <div class="face-box">
                                                   <div class="face-box-corner tl"></div>
                                                   <div class="face-box-corner tr"></div>
                                                   <div class="face-box-corner bl"></div>
                                                   <div class="face-box-corner br"></div>
-                                                  <div class="face-label">Face Detected</div>
+                                                  <div class="face-label">Camera enabled</div>
                                               </div>
                                           </div>
                                         </div>
@@ -115,7 +116,8 @@
                                             <svg class="icon camera-on-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                                                 <circle cx="12" cy="13" r="4"/>
-                                            </svg>
+                                            </svg> <!--Edit-->
+
                                             <svg class="icon camera-off-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                 <line x1="1" y1="1" x2="23" y2="23"/>
                                                 <path d="m9 9-5 5v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4z"/>
