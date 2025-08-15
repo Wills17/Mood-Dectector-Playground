@@ -1,12 +1,11 @@
-// State Variables
+// state variables 
 let isDetecting = false;
 let cameraEnabled = false;
 let audioEnabled = false;
 let detectionInterval;
 let videoElement;
 
-// Emotions and mapping
-emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
+const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
     'Happy': '😊',
     'Sad': '😢',
@@ -17,7 +16,7 @@ const emotionEmojis = {
     'Disgust': '🤢'
 };
 
-// Emotion detection counts
+// Track number of times each emotion detected
 let emotionCounts = {
     Happy: 0,
     Neutral: 0,
@@ -28,8 +27,31 @@ let emotionCounts = {
     Disgust: 0
 };
 
+// Update number of times an emotion is detected & scale bars
+function updateEmotionCount(emotion) {
+    if (emotionCounts.hasOwnProperty(emotion)) {
+        emotionCounts[emotion]++;
 
-// DOM Elements
+        const maxCount = Math.max(...Object.values(emotionCounts), 1);
+
+        for (let e in emotionCounts) {
+            const countValue = document.querySelector(
+                `.emotion-card[data-emotion="${e}"] .confidence-value`
+            );
+            const fillBar = document.querySelector(
+                `.emotion-card[data-emotion="${e}"] .confidence-fill`
+            );
+
+            if (countValue) countValue.textContent = emotionCounts[e];
+            if (fillBar) {
+                const widthPercent = (emotionCounts[e] / maxCount) * 100;
+                fillBar.style.width = `${widthPercent}%`;
+            }
+        }
+    }
+}
+
+// Elements
 const startStopBtn = document.getElementById('startStopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const toggleCameraBtn = document.getElementById('toggleCamera');
@@ -42,9 +64,6 @@ const cameraOffState = document.getElementById('cameraOffState');
 const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
 
-
-// Event Listeners
-
 // Start/Stop Detection
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
@@ -55,17 +74,21 @@ startStopBtn.addEventListener('click', () => {
 resetBtn.addEventListener('click', () => {
     stopDetection();
     isDetecting = false;
+    emotionCounts = {
+        Happy: 0,
+        Neutral: 0,
+        Surprise: 0,
+        Sad: 0,
+        Angry: 0,
+        Fear: 0,
+        Disgust: 0
+    };
     updateDetectionState();
-
-    emotionEmoji.textContent = "🤔";
-    emotionName.textContent = "Unknown";
+    emotionEmoji.textContent = "😐";
+    emotionName.textContent = "Neutral";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
-
-    for (let key in emotionCounts) {
-        emotionCounts[key] = 0;
-        const el = document.querySelector(`.emotion-card[data-emotion="${key}"] .confidence-value`);
-        if (el) el.textContent = "0";
-    }
+    document.querySelectorAll('.confidence-value').forEach(v => v.textContent = "0");
+    document.querySelectorAll('.confidence-fill').forEach(f => f.style.width = "0%");
 });
 
 // Toggle Camera
@@ -79,10 +102,6 @@ toggleAudioBtn.addEventListener('click', () => {
     audioEnabled = !audioEnabled;
     updateAudioState();
 });
-
-
-
-// Core Functions
 
 function updateDetectionState() {
     if (isDetecting) {
@@ -113,7 +132,7 @@ function startCameraAndDetection() {
             videoElement.setAttribute('playsinline', true);
             videoElement.srcObject = stream;
 
-            cameraOnState.innerHTML = ''; // Clear old feed
+            cameraOnState.innerHTML = ''; // clear old
             cameraOnState.appendChild(videoElement);
 
             detectionInterval = setInterval(captureFrame, 1000);
@@ -153,28 +172,11 @@ function captureFrame() {
     .catch(err => console.error("Prediction error:", err));
 }
 
-
-// Emotion Count + UI Update
-function updateEmotionCount(emotion) {
-    if (emotionCounts.hasOwnProperty(emotion)) {
-        emotionCounts[emotion]++;
-
-        // Update count display
-        const element = document.querySelector(
-            `.emotion-card[data-emotion="${emotion}"] .confidence-value`
-        );
-        if (element) {
-            element.textContent = emotionCounts[emotion];
-        }
-    }
-}
-
 function updateUIWithPrediction(emotion, confidence) {
     emotionEmoji.textContent = emotionEmojis[emotion];
-    emotionName.textContent = emotion;
+    emotionName.textContent = `${emotion} (${confidence}%)`;
     emotionSpeech.textContent = `🎤 Speaking: "You look ${emotion.toLowerCase()}"`;
 
-    // Update history
     const historyItem = `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
         <span class="history-label">${emotion}</span>
@@ -182,10 +184,8 @@ function updateUIWithPrediction(emotion, confidence) {
     </div>`;
     historyList.innerHTML = historyItem + historyList.innerHTML;
 
-    updateEmotionCount(emotion);
-
-    // Highlight active card
     updateEmotionCards(emotion);
+    updateEmotionCount(emotion); // <-- increment count & update bars
 }
 
 function updateEmotionCards(activeEmotion) {
@@ -198,8 +198,6 @@ function updateEmotionCards(activeEmotion) {
     });
 }
 
-
-// Camera & Audio UI
 function updateCameraState() {
     const shouldShowCamera = cameraEnabled && isDetecting;
 
@@ -239,7 +237,6 @@ function updateAudioState() {
     }
 }
 
-
-// Initialise states
+// Initialize default states
 updateCameraState();
 updateAudioState();
