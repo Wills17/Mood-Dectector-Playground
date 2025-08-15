@@ -4,7 +4,7 @@ let cameraEnabled = false;
 let detectionInterval;
 let videoElement;
 
-const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
+const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
     'Happy': '😊',
     'Sad': '😢',
@@ -40,12 +40,9 @@ resetBtn.addEventListener('click', () => {
     updateDetectionState();
     emotionEmoji.textContent = "😐";
     emotionName.textContent = "Neutral";
+    emotionSpeech.textContent = "";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
-
-    // Clear all bars on reset
-    document.querySelectorAll('.confidence-fill').forEach(bar => {
-        bar.style.width = '0%';
-    });
+    resetConfidenceBars();
 });
 
 // Toggle Camera
@@ -118,50 +115,61 @@ function captureFrame() {
     .then(data => {
         if (data.emotion) {
             updateUIWithPrediction(data.emotion, data.confidence);
+        } else {
+            resetConfidenceBars();
         }
     })
     .catch(err => console.error("Prediction error:", err));
 }
 
 function updateUIWithPrediction(emotion, confidence) {
+    // Update emoji & name
     emotionEmoji.textContent = emotionEmojis[emotion];
     emotionName.textContent = `${emotion} (${confidence}%)`;
-    emotionSpeech.textContent = `🎤 Spoke: "You look ${emotion.toLowerCase()}"`;
+    emotionSpeech.textContent = `🎤 You look ${emotion.toLowerCase()}`;
 
-    // Remove "Latest" badge from all existing items
-    historyList.querySelectorAll('.latest-badge').forEach(badge => badge.remove());
+    // Browser TTS
+    const utterance = new SpeechSynthesisUtterance(`You look ${emotion.toLowerCase()}`);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
 
-    const historyItem = 
-    `<div class="history-item latest">
+    // Update recent predictions list (only keep last 5)
+    const historyItem = `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
         <span class="history-label">${emotion}</span>
         <span class="latest-badge">Latest</span>
     </div>`;
-    historyList.innerHTML = historyItem + historyList.innerHTML;
 
-    // Limit to 7 items
-    const historyItems = historyList.querySelectorAll('.history-item');
-    if (historyItems.length > 5) {
-        for (let i = 5; i < historyItems.length; i++) {
-            historyItems[i].remove();
-        }
-    }
+    const currentHistory = historyList.innerHTML;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = historyItem + currentHistory;
 
-    updateEmotionCards(emotion);
-    updateEmotionCards(emotion);
+    const items = tempDiv.querySelectorAll('.history-item');
+    const limitedHistory = Array.from(items).slice(0, 5).map(item => item.outerHTML).join('');
+
+    historyList.innerHTML = limitedHistory;
+
+    // Update emotion cards & confidence bar
+    updateEmotionCards(emotion, confidence);
 }
 
-function updateEmotionCards(activeEmotion) {
+function updateEmotionCards(activeEmotion, confidence) {
     document.querySelectorAll('.emotion-card').forEach(card => {
-        const fillBar = card.querySelector('.confidence-fill');
-
+        const barFill = card.querySelector('.confidence-fill');
         if (card.dataset.emotion === activeEmotion && isDetecting) {
             card.classList.add('active');
-            fillBar.style.width = '100%'; 
+            if (barFill) barFill.style.width = `${confidence}%`;
         } else {
             card.classList.remove('active');
-            fillBar.style.width = '0%'; 
+            if (barFill) barFill.style.width = '0%';
         }
+    });
+}
+
+function resetConfidenceBars() {
+    document.querySelectorAll('.confidence-fill').forEach(bar => {
+        bar.style.width = '0%';
     });
 }
 
@@ -192,6 +200,5 @@ function updateCameraState() {
     }
 }
 
-
-// Initialize defaults
+// Init defaults
 updateCameraState();
