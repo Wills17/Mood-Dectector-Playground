@@ -1,12 +1,12 @@
-// state variables 
+// State Variables
 let isDetecting = false;
 let cameraEnabled = false;
 let audioEnabled = false;
 let detectionInterval;
 let videoElement;
 
-
-const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
+// Emotions and mapping
+emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
     'Happy': '😊',
     'Sad': '😢',
@@ -17,7 +17,19 @@ const emotionEmojis = {
     'Disgust': '🤢'
 };
 
-// Elements
+// Emotion detection counts
+let emotionCounts = {
+    Happy: 0,
+    Neutral: 0,
+    Surprise: 0,
+    Sad: 0,
+    Angry: 0,
+    Fear: 0,
+    Disgust: 0
+};
+
+
+// DOM Elements
 const startStopBtn = document.getElementById('startStopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const toggleCameraBtn = document.getElementById('toggleCamera');
@@ -30,6 +42,9 @@ const cameraOffState = document.getElementById('cameraOffState');
 const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
 
+
+// Event Listeners
+
 // Start/Stop Detection
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
@@ -41,9 +56,16 @@ resetBtn.addEventListener('click', () => {
     stopDetection();
     isDetecting = false;
     updateDetectionState();
-    emotionEmoji.textContent = "😐";
-    emotionName.textContent = "Neutral";
+
+    emotionEmoji.textContent = "🤔";
+    emotionName.textContent = "Unknown";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
+
+    for (let key in emotionCounts) {
+        emotionCounts[key] = 0;
+        const el = document.querySelector(`.emotion-card[data-emotion="${key}"] .confidence-value`);
+        if (el) el.textContent = "0";
+    }
 });
 
 // Toggle Camera
@@ -57,6 +79,10 @@ toggleAudioBtn.addEventListener('click', () => {
     audioEnabled = !audioEnabled;
     updateAudioState();
 });
+
+
+
+// Core Functions
 
 function updateDetectionState() {
     if (isDetecting) {
@@ -87,7 +113,7 @@ function startCameraAndDetection() {
             videoElement.setAttribute('playsinline', true);
             videoElement.srcObject = stream;
 
-            cameraOnState.innerHTML = ''; // clear old
+            cameraOnState.innerHTML = ''; // Clear old feed
             cameraOnState.appendChild(videoElement);
 
             detectionInterval = setInterval(captureFrame, 1000);
@@ -127,11 +153,28 @@ function captureFrame() {
     .catch(err => console.error("Prediction error:", err));
 }
 
+
+// Emotion Count + UI Update
+function updateEmotionCount(emotion) {
+    if (emotionCounts.hasOwnProperty(emotion)) {
+        emotionCounts[emotion]++;
+
+        // Update count display
+        const element = document.querySelector(
+            `.emotion-card[data-emotion="${emotion}"] .confidence-value`
+        );
+        if (element) {
+            element.textContent = emotionCounts[emotion];
+        }
+    }
+}
+
 function updateUIWithPrediction(emotion, confidence) {
     emotionEmoji.textContent = emotionEmojis[emotion];
-    emotionName.textContent = `${emotion} (${confidence}%)`;
+    emotionName.textContent = emotion;
     emotionSpeech.textContent = `🎤 Speaking: "You look ${emotion.toLowerCase()}"`;
 
+    // Update history
     const historyItem = `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
         <span class="history-label">${emotion}</span>
@@ -139,6 +182,9 @@ function updateUIWithPrediction(emotion, confidence) {
     </div>`;
     historyList.innerHTML = historyItem + historyList.innerHTML;
 
+    updateEmotionCount(emotion);
+
+    // Highlight active card
     updateEmotionCards(emotion);
 }
 
@@ -152,6 +198,8 @@ function updateEmotionCards(activeEmotion) {
     });
 }
 
+
+// Camera & Audio UI
 function updateCameraState() {
     const shouldShowCamera = cameraEnabled && isDetecting;
 
@@ -191,6 +239,7 @@ function updateAudioState() {
     }
 }
 
-// Initialize default states
+
+// Initialise states
 updateCameraState();
 updateAudioState();
