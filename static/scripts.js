@@ -1,7 +1,6 @@
 // state variables 
 let isDetecting = false;
 let cameraEnabled = false;
-let audioEnabled = false;
 let detectionInterval;
 let videoElement;
 
@@ -20,7 +19,6 @@ const emotionEmojis = {
 const startStopBtn = document.getElementById('startStopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const toggleCameraBtn = document.getElementById('toggleCamera');
-const toggleAudioBtn = document.getElementById('toggleAudio');
 const emotionEmoji = document.getElementById('emotionEmoji');
 const emotionName = document.getElementById('emotionName');
 const emotionSpeech = document.getElementById('emotionSpeech');
@@ -54,12 +52,6 @@ resetBtn.addEventListener('click', () => {
 toggleCameraBtn.addEventListener('click', () => {
     cameraEnabled = !cameraEnabled;
     updateCameraState();
-});
-
-// Toggle Audio
-toggleAudioBtn.addEventListener('click', () => {
-    audioEnabled = !audioEnabled;
-    updateAudioState();
 });
 
 function updateDetectionState() {
@@ -165,10 +157,10 @@ function updateEmotionCards(activeEmotion) {
 
         if (card.dataset.emotion === activeEmotion && isDetecting) {
             card.classList.add('active');
-            fillBar.style.width = '100%'; // full bar for detected emotion
+            fillBar.style.width = '100%'; 
         } else {
             card.classList.remove('active');
-            fillBar.style.width = '0%'; // empty otherwise
+            fillBar.style.width = '0%'; 
         }
     });
 }
@@ -200,18 +192,6 @@ function updateCameraState() {
     }
 }
 
-function updateAudioState() {
-    if (audioEnabled) {
-        toggleAudioBtn.querySelector('.audio-on-icon').classList.remove('hidden');
-        toggleAudioBtn.querySelector('.audio-off-icon').classList.add('hidden');
-        toggleAudioBtn.classList.add('active');
-    } else {
-        toggleAudioBtn.querySelector('.audio-on-icon').classList.add('hidden');
-        toggleAudioBtn.querySelector('.audio-off-icon').classList.remove('hidden');
-        toggleAudioBtn.classList.remove('active');
-    }
-}
 
 // Initialize defaults
 updateCameraState();
-updateAudioState();
