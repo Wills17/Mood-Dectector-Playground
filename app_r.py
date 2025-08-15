@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 
 
 # Load model
-model = load_model("emotions_model.h5")
+model = load_model("Model/emotions_model.h5")
 print("\nModel loaded and running!")
 
 model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
