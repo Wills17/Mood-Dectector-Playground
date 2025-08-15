@@ -191,6 +191,6 @@ function updateAudioState() {
     }
 }
 
-// Init defaults
+// Initialize default states
 updateCameraState();
 updateAudioState();
