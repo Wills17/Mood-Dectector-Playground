@@ -136,13 +136,23 @@ function updateUIWithPrediction(emotion, confidence) {
     emotionName.textContent = `${emotion} (${confidence}%)`;
     emotionSpeech.textContent = `🎤 Spoke: "You look ${emotion.toLowerCase()}"`;
 
-    const historyItem = `<div class="history-item latest">
+    const historyItem = 
+    `<div class="history-item latest">
         <span class="history-emoji">${emotionEmojis[emotion]}</span>
         <span class="history-label">${emotion}</span>
         <span class="latest-badge">Latest</span>
     </div>`;
     historyList.innerHTML = historyItem + historyList.innerHTML;
 
+    // Limit to 7 items
+    const historyItems = historyList.querySelectorAll('.history-item');
+    if (historyItems.length > 5) {
+        for (let i = 5; i < historyItems.length; i++) {
+            historyItems[i].remove();
+        }
+    }
+
+    updateEmotionCards(emotion);
     updateEmotionCards(emotion);
 }
 
