@@ -11,8 +11,6 @@ import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # 0 = all logs, 1 = filter INFO, 2 = filter WARNING, 3 = filter ERROR
 
 
-
-
 # Load model
 model = load_model("Model/emotions_model.h5")
 print("\nModel loaded and running!")
