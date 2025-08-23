@@ -30,6 +30,11 @@ const cameraOnState = document.getElementById('cameraOnState');
 const faceOverlay = document.getElementById('faceOverlay');
 
 
+// define prediction interval for tweaking later.
+const PREDICTION_INTERVAL = 7000; // ms
+
+
+
 // Event Listeners
 startStopBtn.addEventListener('click', () => {
     isDetecting = !isDetecting;
@@ -115,7 +120,7 @@ function startCameraAndDetection() {
             cameraOnState.innerHTML = ''; // clear old
             cameraOnState.appendChild(videoElement);
 
-            detectionInterval = setInterval(captureFrame, 1000);
+            detectionInterval = setInterval(captureFrame, PREDICTION_INTERVAL);
         })
         .catch(err => console.error("Camera access error:", err));
 }
