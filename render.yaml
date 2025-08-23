@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: emotion-detector-app
+    name: Mood Detection Playground
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app_r:app --bind 0.0.0.0:$PORT
