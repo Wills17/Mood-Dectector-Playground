@@ -11,7 +11,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # 0 = all logs, 1 = filter INFO, 2 = f
 
 
 # Load TFLite model
-interpreter = tf.lite.Interpreter(model_path="Models/emotions_model.tflite")
+interpreter = tf.lite.Interpreter(model_path="Models/emotion_model.tflite")
 interpreter.allocate_tensors()
 print("\nModel loaded and running!")
 
