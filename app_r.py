@@ -7,7 +7,8 @@ from flask import Flask, render_template, request, jsonify
 import os
 
 # CUDA filter error suppress
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # 0 = all logs, 1 = filter INFO, 2 = filter WARNING, 3 = filter ERROR
+# 0 = all logs, 1 = filter INFO, 2 = filter WARNING, 3 = filter ERROR
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  
 
 
 # Load TFLite model

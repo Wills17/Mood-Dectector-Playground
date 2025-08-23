@@ -4,6 +4,7 @@ let cameraEnabled = false;
 let detectionInterval;
 let videoElement;
 let lastSpokenEmotion = null;
+let lastPrediction = null;
 
 const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise'];
 const emotionEmojis = {
@@ -31,7 +32,7 @@ const faceOverlay = document.getElementById('faceOverlay');
 
 
 // define prediction interval for tweaking later.
-const PREDICTION_INTERVAL = 1000; // ms
+const PREDICTION_INTERVAL = 2000; // ms
 
 
 
@@ -49,6 +50,7 @@ resetBtn.addEventListener('click', () => {
     emotionName.textContent = "Neutral";
     historyList.innerHTML = '<div class="empty-history"><p>No detections yet</p></div>';
     lastSpokenEmotion = null;
+    lastPrediction = null;
 });
 
 toggleCameraBtn.addEventListener('click', () => {
@@ -182,20 +184,24 @@ function updateUIWithPrediction(emotion, confidence) {
         lastSpokenEmotion = emotion;
     }
 
-    // Update recent predictions (max 5)
-    const historyItem = `<div class="history-item latest">
-        <span class="history-emoji">${emotionEmojis[emotion]}</span>
-        <span class="history-label">${emotion}</span>
-        <span class="latest-badge">Latest</span>
-    </div>`;
+    // Update recent predictions (max 7, only if different from last one)
+    if (emotion !== lastPrediction) {
+        const historyItem = `<div class="history-item latest">
+            <span class="history-emoji">${emotionEmojis[emotion]}</span>
+            <span class="history-label">${emotion}</span>
+            <span class="latest-badge">Latest</span>
+        </div>`;
 
-    const currentHistory = historyList.innerHTML;
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = historyItem + currentHistory;
+        const currentHistory = historyList.innerHTML;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = historyItem + currentHistory;
 
-    const items = tempDiv.querySelectorAll('.history-item');
-    const limitedHistory = Array.from(items).slice(0, 5).map(item => item.outerHTML).join('');
-    historyList.innerHTML = limitedHistory;
+        const items = tempDiv.querySelectorAll('.history-item');
+        const limitedHistory = Array.from(items).slice(0, 7).map(item => item.outerHTML).join('');
+        historyList.innerHTML = limitedHistory;
+
+        lastPrediction = emotion;
+    }
 
     // Update emotion cards with confidence
     updateEmotionCards(emotion, confidence);
