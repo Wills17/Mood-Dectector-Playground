@@ -2,20 +2,27 @@
 import cv2 as cv
 import numpy as np
 import base64
-from tensorflow.keras.models import load_model
+import tensorflow as tf
 from flask import Flask, render_template, request, jsonify
 import os
 
-
-# CUDA filter error supress
+# CUDA filter error suppress
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # 0 = all logs, 1 = filter INFO, 2 = filter WARNING, 3 = filter ERROR
 
 
-# Load model
-model = load_model("Model/emotions_model.h5")
+# Load TFLite model
+interpreter = tf.lite.Interpreter(model_path="Models/emotions_model.tflite")
+interpreter.allocate_tensors()
 print("\nModel loaded and running!")
 
-model.predict(np.zeros((1, 48, 48, 1)), verbose=0)
+# Get model input & output details
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
+
+# Warmup
+dummy_input = np.zeros(input_details[0]['shape'], dtype=np.float32)
+interpreter.set_tensor(input_details[0]['index'], dummy_input)
+interpreter.invoke()
 print("Model warmup complete!")
 
 
@@ -24,7 +31,6 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Labels
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Neutral', 'Sad', 'Surprise']
-
 
 # Use face cascade
 face_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -43,7 +49,7 @@ def detect():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get image continously from request
+        # Get image from request
         data = request.json['image']
         image_data = base64.b64decode(data.split(',')[1])
         np_array = np.frombuffer(image_data, np.uint8)
@@ -69,8 +75,11 @@ def predict():
         face_normalized = face_resized.astype("float32") / 255.0
         face_reshaped = np.reshape(face_normalized, (1, 48, 48, 1))
 
-        # Prediction
-        prediction = model.predict(face_reshaped, verbose=0)
+        # TFLite inference
+        interpreter.set_tensor(input_details[0]['index'], face_reshaped.astype(np.float32))
+        interpreter.invoke()
+        prediction = interpreter.get_tensor(output_details[0]['index'])[0]
+
         emotion_index = int(np.argmax(prediction))
         predicted_emotion = emotion_labels[emotion_index]
         confidence = float(np.max(prediction) * 100)
@@ -89,8 +98,6 @@ def predict():
         return jsonify({"error": str(e)})
 
 
-
 # run app
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)
-
