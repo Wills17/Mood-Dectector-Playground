@@ -1,7 +1,6 @@
 services:
   - type: web
-    name: Emotion Detector App
+    name: emotion-detector-app
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app_r.py
-    
+    startCommand: gunicorn app_r:app --bind 0.0.0.0:$PORT

@@ -4,8 +4,12 @@ import numpy as np
 import base64
 from tensorflow.keras.models import load_model
 from flask import Flask, render_template, request, jsonify
-import warnings
-warnings.filterwarnings("ignore")
+import os
+
+
+# CUDA filter error supress
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # 0 = all logs, 1 = filter INFO, 2 = filter WARNING, 3 = filter ERROR
+
 
 
 
