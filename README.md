@@ -1,50 +1,52 @@
-# 😃 Mood Detector Playground
+# EmotiSense – AI Emotion Detection
 
-Real-time **facial emotion detection** powered by **TensorFlow, OpenCV, and Flask**. Detect emotions from your webcam directly in the browser or run a local version with **speech feedback**. Includes two versions: a **live TFLite deployment** and a **local .h5-based demo**.
+EmotiSense is a **real-time facial emotion detection app**  powered by TensorFlow, OpenCV, and Flask. Detect emotions from your webcam directly in the browser or run a local version with speech feedback.
+
+---
+
+## 🚀 Demo
+Try it live here: [EmotiSense on Render](https://mood-dectector-playground.onrender.com)
 
 ---
 
 ## 🚀 Features
 
-* Detects **7 emotions**: Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise
-* **Real-time webcam detection**
-* **Two modes**:
+- Detects **7 emotions**: Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise.
 
-  * 🟢 `app_r.py` → Lightweight TFLite model for deployment
-  * 🖥️ `app.py` → Local version with speech feedback (using `.h5`)
-* **Mediapipe Mesh Demo (`main.py`)** → Rule-based emotion estimation using mathematical facial landmark calculations (no deep learning)
-* **Web Interface** with modern UI (`home.html`, `detect.html`)
-* **Secure & Private** → All inference happens locally in-browser
+- **Real-time webcam detection**
 
----
+- **Two modes:**
 
-## 🗂️ Project Structure
+  - 🟢 `app_r.py` → Lightweight TFLite model for deployment.
+  - 🖥️ `app.py` → Local version with speech feedback (using `.h5`)
 
-```
-MOOD-DETECTOR-PLAYGROUND/
-│
-├── Models/
-│   ├── emotion_model.h5          # Keras model (local version)
-│   └── emotion_model.tflite      # TFLite model (deployment)
-│
-├── static/
-│   ├── images/
-│   │   └── hero-emotion-ai.jpg
-│   ├── scripts.js
-│   └── styles.css
-│
-├── templates/
-│   ├── home.html
-│   └── detect.html
-│
-├── app.py                        # Local version (.h5, with TTS)
-├── app_r.py                      # Deployment version (TFLite)
-├── main.py                       # Mediapipe math-based demo
-├── model_train.py                 # Model training script
-├── model_train.ipynb              # Training notebook with results
-├── requirements.txt
-└── render.yaml (optional)
-```
+- **Mediapipe Mesh Demo** (`main.py`) → Rule-based emotion estimation using mathematical facial landmark calculations (no deep learning).
+
+- **Web Interface** with modern UI (`home.html`, `detect.html`)
+
+- **Secure & Private** → All inference happens locally in-browser.
+
+## 📂 Project Structure
+
+- **Models/**
+  - `emotion_model.h5` → Keras model
+  - `emotion_model.tflite` → TFLite model (for deployment)
+
+- **static/**
+  - `scripts.js`
+  - `styles.css`
+
+- **templates/**
+  - `detect.html`
+  - `home.html`
+
+- `app.py` → Local version (uses `.h5` model, opens via localhost)  
+- `app_r.py` → Render/live version (uses `.tflite` model)  
+- `main.py` → Demo with Mediapipe face mesh & math-based mood detection  
+- `model_train.ipynb`  
+- `model_train.py`  
+- `requirements.txt`  
+- `render.yaml`
 
 ---
 
@@ -93,50 +95,56 @@ The CNN model was trained using the **Face Expression Recognition Dataset** (7 e
 
 ---
 
+## ⚙️ How It Works
+
+- **app.py** → Uses `.h5` TensorFlow/Keras model, runs locally (`python app.py`) and opens in the browser.  
+- **app_r.py** → Optimized for deployment, runs on `.tflite` model for faster inference.  
+- **main.py** → Alternative demo using Mediapipe face mesh + mathematical rules (no training data).  
+  Displays **webcam + avatar mesh side by side**.
+
+---
+
 ## ▶️ Running the App
 
-### 1. Local version (`app.py`)
-
-Runs the `.h5` model with **text-to-speech feedback**.
-
+### Local Version (.h5 model)
 ```bash
-pip install -r requirements.txt
 python app.py
 ```
 
-Open in browser: `http://127.0.0.1:5000/`
+---
 
-### 2. Deployment version (`app_r.py`)
-
-Runs the lightweight **TFLite model** (for Render/production).
-
+### Live/Optimized Version (.tflite model)
 ```bash
-pip install -r requirements.txt
 python app_r.py
 ```
+Runs using TensorFlow Lite for faster inference.
 
 ---
 
-## 🧪 Mediapipe Demo (`main.py`)
+Then open in your browser:  
+👉 `http://127.0.0.1:5000`
 
-This is an **alternative experiment** that doesn’t rely on CNN training. Instead, it uses:
+### Mediapipe Math-Based Demo
+```bash
+python main.py
+```
+Shows **camera feed + mesh overlay side by side** and calculates moods using geometry, not trained data.
 
-* **FaceMesh landmarks** from Mediapipe
-* **Mathematical ratios** of lip, eye, and iris distances
-* Rule-based classification of moods (Happy, Sad, Angry, Surprised, Neutral, Fearful, Disgusted)
-* Displays **webcam + avatar mesh side by side**
-
-This version demonstrates how emotions can be inferred using **geometric features** instead of deep learning.
-
----
 
 ## 📦 Requirements
 
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
-Flask
-tensorflow
-numpy
-opencv-python-headless
-Pillow
-gunicorn
-```
+
+Key dependencies:
+- Flask  
+- TensorFlow / TFLite  
+- OpenCV  
+- NumPy  
+- Pillow  
+- Gunicorn  
+
+---
