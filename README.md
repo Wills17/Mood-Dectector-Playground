@@ -2,7 +2,7 @@
 
 EmotiSense is a **real-time facial emotion detection app**  powered by TensorFlow, OpenCV, and Flask. Detect emotions from your webcam directly in the browser or run a local version with speech feedback.
 
-## [Check out demo here](https://mood-dectector-playground.onrender.com).
+## [Live App](https://mood-dectector-playground.onrender.com).
 
 
 ## 🚀 Features
