@@ -1,5 +1,3 @@
-"""Speciafically for local use"""
-
 # import libraries
 import threading
 import cv2 as cv
