@@ -32,7 +32,7 @@ const faceOverlay = document.getElementById('faceOverlay');
 
 
 // define prediction interval for tweaking later.
-const PREDICTION_INTERVAL = 2000; // ms
+const PREDICTION_INTERVAL = 2500; // ms
 
 
 
