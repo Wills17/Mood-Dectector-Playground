@@ -87,7 +87,7 @@ The CNN model was trained using the **Face Expression Recognition Dataset** (7 e
 
 ### 🔹 Outputs
 
-* Final model saved as **`emotions_model3.h5`**
+* Final model saved as **`emotions_model.h5`**
 * Converted later into **`emotion_model.tflite`** for deployment
 
 ---
